@@ -62,33 +62,29 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
-      // Lấy notes có date (ghi chú thường)
-      const { data: notesData } = await supabase
+      // Lấy TẤT CẢ notes của user trước
+      const { data: allNotesData } = await supabase
         .from("notes")
         .select("*")
         .eq("user_id", user.id)
-        .not("date", "is", null)
-
-      // Lấy future tasks (date = null)
-      const { data: futureTasksData } = await supabase
-        .from("notes")
-        .select("*")
-        .eq("user_id", user.id)
-        .is("date", null)
 
       const { data: payrollData } = await supabase.from("payroll_history").select("*").eq("user_id", user.id)
 
       const { data: workData } = await supabase.from("work_tracking").select("*").eq("user_id", user.id).single()
 
-      if (notesData) {
-        const groupedNotes = notesData.reduce(
+      if (allNotesData) {
+        // Phân loại notes: có date vs không có date
+        const notesWithDate = allNotesData.filter(note => note.date !== null)
+        const notesWithoutDate = allNotesData.filter(note => note.date === null)
+
+        // Group notes có date
+        const groupedNotes = notesWithDate.reduce(
           (acc, note) => {
             const dateKey = note.date
             if (!acc[dateKey]) acc[dateKey] = []
             acc[dateKey].push({
               id: note.id,
               text: note.text,
-              // Ưu tiên dùng timestamp đã lưu, nếu không có thì dùng created_at
               timestamp:
                 note.timestamp ||
                 new Date(note.created_at).toLocaleTimeString("vi-VN", {
@@ -106,15 +102,14 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           {} as typeof notes,
         )
         setNotes(groupedNotes)
-      }
 
-      if (futureTasksData) {
+        // Set future tasks (notes không có date)
         setFutureTasks(
-          futureTasksData.map((task) => ({
+          notesWithoutDate.map((task) => ({
             id: task.id,
             text: task.text,
             color: task.color,
-            priority: task.priority,
+            priority: task.priority || "medium",
             created_at: task.created_at,
           })),
         )
