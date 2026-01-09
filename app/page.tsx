@@ -43,7 +43,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Calendar className="w-8 h-8 text-purple-600" />
-            <h1 className="text-2xl font-bold text-slate-900">Ghi Chú Công Việc</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Note Công Việc</h1>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => router.push("/auth/login")}>
@@ -143,7 +143,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-slate-200/50 py-8 text-center text-slate-600">
         <div className="container mx-auto px-4">
-          <p>&copy; 2026 Ghi Chú Công Việc. Tất cả quyền được bảo lưu.</p>
+          <p>&copy; 2026 Note Công Việc. Tất cả quyền được bảo lưu.</p>
         </div>
       </footer>
     </main>

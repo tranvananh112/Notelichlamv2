@@ -42,7 +42,7 @@ export default function Header({ currentTime }: HeaderProps) {
               📅
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Lịch Làm Việc</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Note Công Việc</h1>
               <p className="text-white/80 text-sm">Theo dõi công việc và điểm danh</p>
             </div>
           </div>
