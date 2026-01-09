@@ -50,6 +50,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     text: string
     color?: string
     priority?: string
+    status?: string
     created_at: string
   }>>([])
 
@@ -217,6 +218,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       text,
       color,
       priority,
+      status: "planning", // Mặc định là "Đang lên kế hoạch"
       created_at: new Date().toISOString(),
     }
 
@@ -233,7 +235,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
 
   const updateFutureTask = (
     taskId: string,
-    updates: Partial<{ text: string; color: string; priority: string }>,
+    updates: Partial<{ text: string; color: string; priority: string; status: string }>,
   ) => {
     const updatedTasks = futureTasks.map((task) => (task.id === taskId ? { ...task, ...updates } : task))
     setFutureTasks(updatedTasks)

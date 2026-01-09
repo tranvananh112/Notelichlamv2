@@ -34,11 +34,12 @@ interface NotePanelProps {
     text: string
     color?: string
     priority?: string
+    status?: string
     created_at: string
   }>
   onAddFutureTask: (text: string, color: string, priority: string) => void
   onDeleteFutureTask: (taskId: string) => void
-  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string }>) => void
+  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string; status: string }>) => void
 }
 
 export default function NotePanel({
@@ -61,10 +62,11 @@ export default function NotePanel({
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ text: string; progress: number }>({ text: "", progress: 0 })
   const [editingFutureTaskId, setEditingFutureTaskId] = useState<string | null>(null)
-  const [futureTaskValues, setFutureTaskValues] = useState<{ text: string; color: string; priority: string }>({
+  const [futureTaskValues, setFutureTaskValues] = useState<{ text: string; color: string; priority: string; status: string }>({
     text: "",
     color: "blue",
-    priority: "medium"
+    priority: "medium",
+    status: "planning"
   })
 
   const filteredNotes = dayNotes.filter((note) => {
@@ -293,40 +295,87 @@ export default function NotePanel({
                 }
                 const priority = priorityColors[task.priority as keyof typeof priorityColors] || priorityColors.medium
 
+                const statusConfig = {
+                  planning: { label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                  inProgress: { label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                  working: { label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                  nearDone: { label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                  completed: { label: "Đã xong", color: "bg-green-500", icon: "✅" },
+                }
+                const status = statusConfig[task.status as keyof typeof statusConfig] || statusConfig.planning
+
                 return (
                   <Card key={task.id} className={`group relative overflow-hidden border-l-4 ${priority.border} ${priority.bg} hover:shadow-lg transition-all duration-300`}>
                     <div className="p-4">
                       <div className="flex items-start gap-3">
+                        {/* Status Icon */}
+                        <div className="flex-shrink-0 mt-0.5">
+                          <div className={`w-8 h-8 rounded-full ${status.color} flex items-center justify-center text-white shadow-md`}>
+                            <span className="text-sm">{status.icon}</span>
+                          </div>
+                        </div>
+
                         <div className="flex-1 min-w-0 overflow-hidden pr-2">
                           <p className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
                             {task.text}
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white font-medium`}>
+
+                          {/* Status và Priority badges */}
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <span className={`px-2 py-1 rounded-full ${status.color} text-white text-xs font-medium shadow-sm`}>
+                              {status.label}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
                               {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
                             </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                             <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                             <span className="truncate">
                               {new Date(task.created_at).toLocaleDateString("vi-VN")}
                             </span>
                           </div>
                         </div>
-                        <div className="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => {
-                              setEditingFutureTaskId(task.id)
-                              setFutureTaskValues({ text: task.text, color: task.color || "blue", priority: task.priority || "medium" })
-                            }}
-                            className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => onDeleteFutureTask(task.id)}
-                            className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+
+                        {/* Actions */}
+                        <div className="flex-shrink-0 flex flex-col gap-1">
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                setEditingFutureTaskId(task.id)
+                                setFutureTaskValues({
+                                  text: task.text,
+                                  color: task.color || "blue",
+                                  priority: task.priority || "medium",
+                                  status: task.status || "planning"
+                                })
+                              }}
+                              className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => onDeleteFutureTask(task.id)}
+                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Quick Status Change */}
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {Object.entries(statusConfig).map(([key, config]) => (
+                              <button
+                                key={key}
+                                onClick={() => onUpdateFutureTask(task.id, { status: key })}
+                                className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${task.status === key ? 'ring-2 ring-white' : ''}`}
+                                title={config.label}
+                              >
+                                {config.icon}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -455,6 +504,35 @@ export default function NotePanel({
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
               placeholder="Nhập ý tưởng công việc cho tương lai..."
             />
+
+            {/* Trạng thái */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                Trạng thái
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                ].map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
+                      ? `${s.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      }`}
+                  >
+                    <span>{s.icon}</span>
+                    <span className="truncate">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mức độ ưu tiên */}
             <div className="mb-4">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
                 Mức độ ưu tiên
@@ -478,11 +556,12 @@ export default function NotePanel({
                 ))}
               </div>
             </div>
+
             <div className="flex gap-2 justify-end">
               <Button
                 onClick={() => {
                   setShowFutureTaskModal(false)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium" })
+                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
                 }}
                 className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
               >
@@ -493,7 +572,7 @@ export default function NotePanel({
                   if (futureTaskValues.text.trim()) {
                     onAddFutureTask(futureTaskValues.text, futureTaskValues.color, futureTaskValues.priority)
                     setShowFutureTaskModal(false)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium" })
+                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
                   }
                 }}
                 className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
@@ -516,6 +595,36 @@ export default function NotePanel({
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
               placeholder="Chỉnh sửa nội dung..."
             />
+
+            {/* Trạng thái */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                Trạng thái
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                  { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
+                ].map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
+                        ? `${s.color} text-white shadow-md`
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      }`}
+                  >
+                    <span>{s.icon}</span>
+                    <span className="truncate">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mức độ ưu tiên */}
             <div className="mb-4">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
                 Mức độ ưu tiên
@@ -530,8 +639,8 @@ export default function NotePanel({
                     key={p.value}
                     onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                      ? `${p.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                        ? `${p.color} text-white shadow-md`
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     {p.label}
@@ -539,11 +648,12 @@ export default function NotePanel({
                 ))}
               </div>
             </div>
+
             <div className="flex gap-2 justify-end">
               <Button
                 onClick={() => {
                   setEditingFutureTaskId(null)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium" })
+                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
                 }}
                 className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
               >
@@ -554,10 +664,11 @@ export default function NotePanel({
                   if (futureTaskValues.text.trim()) {
                     onUpdateFutureTask(editingFutureTaskId, {
                       text: futureTaskValues.text,
-                      priority: futureTaskValues.priority
+                      priority: futureTaskValues.priority,
+                      status: futureTaskValues.status
                     })
                     setEditingFutureTaskId(null)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium" })
+                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
                   }
                 }}
                 className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
