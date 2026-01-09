@@ -258,7 +258,7 @@ export default function NotePanel({
       </div>
 
       {/* Attendance Check-in */}
-      {!hasAttendance && activeTab !== "notes" && (
+      {!hasAttendance && activeTab !== "notes" && activeTab !== "future" && (
         <div className="px-6 pb-4">
           <Button
             onClick={() => setShowAttendanceModal(true)}
@@ -469,8 +469,8 @@ export default function NotePanel({
                     key={p.value}
                     onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                        ? `${p.color} text-white shadow-md`
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? `${p.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     {p.label}
@@ -530,8 +530,8 @@ export default function NotePanel({
                     key={p.value}
                     onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                        ? `${p.color} text-white shadow-md`
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? `${p.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     {p.label}
