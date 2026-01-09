@@ -13,13 +13,15 @@ interface ModernNoteCardProps {
         color?: string
         progress?: number
         completed?: boolean
+        status?: string
     }
     onDelete: () => void
     onToggleComplete: () => void
     onEdit: () => void
+    onUpdateStatus?: (status: string) => void
 }
 
-export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdit }: ModernNoteCardProps) {
+export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdit, onUpdateStatus }: ModernNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false)
 
     const colorStyles: Record<string, { bg: string; border: string; text: string; badge: string }> = {
@@ -38,6 +40,19 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
         if (text.includes("Buổi sáng")) return "🌅"
         if (text.includes("Buổi chiều")) return "🌆"
         return "✓"
+    }
+
+    const getStatusOptions = () => ({
+        planning: { label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+        inProgress: { label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+        working: { label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+        nearDone: { label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+        completed: { label: "Đã xong", color: "bg-green-500", icon: "✅" },
+    })
+
+    const getStatusConfig = (status: string) => {
+        const options = getStatusOptions()
+        return options[status as keyof typeof options] || options.planning
     }
 
     if (note.type === "attendance") {
@@ -78,6 +93,15 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
         <Card className={`group relative overflow-hidden border-l-4 ${colors.border} ${colors.bg} hover:shadow-lg transition-all duration-300 animate-in slide-in-from-left`}>
             <div className="p-4">
                 <div className="flex items-start gap-3">
+                    {/* Status Icon */}
+                    {note.status && (
+                        <div className="flex-shrink-0 mt-0.5">
+                            <div className={`w-8 h-8 rounded-full ${getStatusConfig(note.status).color} flex items-center justify-center text-white shadow-md`}>
+                                <span className="text-sm">{getStatusConfig(note.status).icon}</span>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Checkbox */}
                     <button
                         onClick={onToggleComplete}
@@ -94,6 +118,15 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
                         <p className={`text-sm font-medium mb-2 break-words ${note.completed ? "line-through text-slate-400" : "text-slate-900 dark:text-white"}`}>
                             {note.text}
                         </p>
+
+                        {/* Status Badge */}
+                        {note.status && (
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                <span className={`px-2 py-1 rounded-full ${getStatusConfig(note.status).color} text-white text-xs font-medium shadow-sm`}>
+                                    {getStatusConfig(note.status).label}
+                                </span>
+                            </div>
+                        )}
 
                         {/* Progress Bar */}
                         {note.progress !== undefined && note.progress > 0 && (
@@ -119,19 +152,37 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
                     </div>
 
                     {/* Actions */}
-                    <div className="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={onEdit}
-                            className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
-                        >
-                            <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={onDelete}
-                            className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                    <div className="flex-shrink-0 flex flex-col gap-1">
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={onEdit}
+                                className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
+                            >
+                                <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={onDelete}
+                                className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Quick Status Change */}
+                        {onUpdateStatus && (
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {Object.entries(getStatusOptions()).map(([key, config]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => onUpdateStatus(key)}
+                                        className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${note.status === key ? 'ring-2 ring-white' : ''}`}
+                                        title={config.label}
+                                    >
+                                        {config.icon}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

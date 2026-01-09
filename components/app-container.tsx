@@ -34,6 +34,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         color?: string
         progress?: number
         completed?: boolean
+        status?: string
       }>
     >
   >({})
@@ -121,6 +122,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
               color: note.color,
               progress: note.progress,
               completed: note.completed,
+              status: note.status,
             })
             return acc
           },
@@ -202,7 +204,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
 
   const updateNote = async (
     noteId: string,
-    updates: Partial<{ text: string; color: string; progress: number; completed: boolean }>,
+    updates: Partial<{ text: string; color: string; progress: number; completed: boolean; status: string }>,
   ) => {
     await supabase.from("notes").update(updates).eq("id", noteId)
 

@@ -16,6 +16,7 @@ interface Note {
   color?: string
   progress?: number
   completed?: boolean
+  status?: string
 }
 
 interface NotePanelProps {
@@ -25,7 +26,7 @@ interface NotePanelProps {
   onDeleteNote: (noteId: string) => void
   onUpdateNote: (
     noteId: string,
-    updates: Partial<{ text: string; color: string; progress: number; completed: boolean }>,
+    updates: Partial<{ text: string; color: string; progress: number; completed: boolean; status: string }>,
   ) => void
   hasWorkStarted: boolean
   onClose?: () => void
@@ -60,7 +61,7 @@ export default function NotePanel({
   const [showAttendanceModal, setShowAttendanceModal] = useState(false)
   const [showFutureTaskModal, setShowFutureTaskModal] = useState(false)
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-  const [editValues, setEditValues] = useState<{ text: string; progress: number }>({ text: "", progress: 0 })
+  const [editValues, setEditValues] = useState<{ text: string; progress: number; status: string }>({ text: "", progress: 0, status: "planning" })
   const [editingFutureTaskId, setEditingFutureTaskId] = useState<string | null>(null)
   const [futureTaskValues, setFutureTaskValues] = useState<{ text: string; color: string; priority: string; status: string }>({
     text: "",
@@ -121,11 +122,11 @@ export default function NotePanel({
 
   const handleEditNote = (note: Note) => {
     setEditingNoteId(note.id)
-    setEditValues({ text: note.text, progress: note.progress || 0 })
+    setEditValues({ text: note.text, progress: note.progress || 0, status: note.status || "planning" })
   }
 
   const handleSaveEdit = (noteId: string) => {
-    onUpdateNote(noteId, { text: editValues.text, progress: editValues.progress })
+    onUpdateNote(noteId, { text: editValues.text, progress: editValues.progress, status: editValues.status })
     setEditingNoteId(null)
   }
 
@@ -406,6 +407,7 @@ export default function NotePanel({
                   onDelete={() => onDeleteNote(note.id)}
                   onToggleComplete={() => handleToggleComplete(note.id, note.completed || false)}
                   onEdit={() => note.type !== "attendance" && handleEditNote(note)}
+                  onUpdateStatus={(status) => onUpdateNote(note.id, { status })}
                 />
               ))}
             </div>
@@ -462,6 +464,35 @@ export default function NotePanel({
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
               placeholder="Chỉnh sửa nội dung ghi chú..."
             />
+
+            {/* Trạng thái */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                Trạng thái
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                  { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
+                ].map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setEditValues({ ...editValues, status: s.value })}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${editValues.status === s.value
+                        ? `${s.color} text-white shadow-md`
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      }`}
+                  >
+                    <span>{s.icon}</span>
+                    <span className="truncate">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="mb-4">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
                 Tiến độ: {editValues.progress}%
@@ -613,8 +644,8 @@ export default function NotePanel({
                     key={s.value}
                     onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
-                        ? `${s.color} text-white shadow-md`
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? `${s.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     <span>{s.icon}</span>
@@ -639,8 +670,8 @@ export default function NotePanel({
                     key={p.value}
                     onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                        ? `${p.color} text-white shadow-md`
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? `${p.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     {p.label}
