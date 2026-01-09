@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Trash2, Plus, Clock, CheckCircle } from "lucide-react"
 import NoteModal from "@/components/note-modal"
+import AttendanceModal from "@/components/attendance-modal"
 
 interface Note {
   id: string
@@ -19,7 +20,7 @@ interface Note {
 interface NotePanelProps {
   selectedDate: Date
   dayNotes: Note[]
-  onAddNote: (text: string, type: "note" | "attendance", color: string, progress?: number) => void
+  onAddNote: (text: string, type: "note" | "attendance", color: string, progress?: number, customTimestamp?: string) => void
   onDeleteNote: (noteId: string) => void
   onUpdateNote: (
     noteId: string,
@@ -38,6 +39,7 @@ export default function NotePanel({
 }: NotePanelProps) {
   const [activeTab, setActiveTab] = useState<"all" | "notes" | "attendance">("all")
   const [showNoteModal, setShowNoteModal] = useState(false)
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false)
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ text: string; progress: number }>({ text: "", progress: 0 })
 
@@ -67,10 +69,11 @@ export default function NotePanel({
   ]
   const formattedDate = `${weekDays[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]}`
 
-  const handleMarkAttendance = () => {
-    if (!dayNotes.some((note) => note.type === "attendance")) {
-      onAddNote("Có mặt", "attendance", "green")
-    }
+  const handleMarkAttendance = (workType: "full" | "morning" | "afternoon", startTime: string, endTime: string) => {
+    const attendanceText = `Có mặt - ${workType === "full" ? "Cả ngày" : workType === "morning" ? "Buổi sáng" : "Buổi chiều"} (${startTime} - ${endTime})`
+    const timestamp = `${startTime}`
+    onAddNote(attendanceText, "attendance", "green", undefined, timestamp)
+    setShowAttendanceModal(false)
   }
 
   const getColorLabel = (color: string) => {
@@ -113,31 +116,28 @@ export default function NotePanel({
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setActiveTab("all")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-            activeTab === "all"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-              : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-          }`}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "all"
+            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+            }`}
         >
           Tất cả
         </button>
         <button
           onClick={() => setActiveTab("notes")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-            activeTab === "notes"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-              : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-          }`}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "notes"
+            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+            }`}
         >
           Ghi chú
         </button>
         <button
           onClick={() => setActiveTab("attendance")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-            activeTab === "attendance"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-              : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-          }`}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "attendance"
+            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+            }`}
         >
           Điểm danh
         </button>
@@ -146,7 +146,7 @@ export default function NotePanel({
       {/* Attendance Check-in */}
       {!hasAttendance && activeTab !== "notes" && (
         <Button
-          onClick={handleMarkAttendance}
+          onClick={() => setShowAttendanceModal(true)}
           className="w-full mb-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg py-2 flex items-center justify-center gap-2"
         >
           <CheckCircle className="w-4 h-4" />
@@ -191,11 +191,10 @@ export default function NotePanel({
                       <div className="flex items-start gap-2 mb-1">
                         <button
                           onClick={() => handleToggleComplete(note.id, note.completed || false)}
-                          className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                            note.completed
-                              ? "bg-green-500 border-green-500 text-white"
-                              : "border-slate-300 dark:border-slate-600 hover:border-green-500"
-                          }`}
+                          className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${note.completed
+                            ? "bg-green-500 border-green-500 text-white"
+                            : "border-slate-300 dark:border-slate-600 hover:border-green-500"
+                            }`}
                         >
                           {note.completed && <span className="text-xs">✓</span>}
                         </button>
@@ -276,6 +275,13 @@ export default function NotePanel({
             setShowNoteModal(false)
           }}
           onClose={() => setShowNoteModal(false)}
+        />
+      )}
+
+      {showAttendanceModal && (
+        <AttendanceModal
+          onMarkAttendance={handleMarkAttendance}
+          onClose={() => setShowAttendanceModal(false)}
         />
       )}
 

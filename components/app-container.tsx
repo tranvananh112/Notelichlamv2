@@ -96,25 +96,36 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const dateKey = selectedDate.toISOString().split("T")[0]
   const dayNotes = notes[dateKey] || []
 
-  const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number) => {
+  const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number, customTimestamp?: string) => {
+    // Sử dụng timestamp tùy chỉnh hoặc tạo mới
+    const timestamp = customTimestamp || new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+
     const newNote = {
       id: Date.now().toString(),
       text,
-      timestamp: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+      timestamp,
       type,
       color: type === "attendance" ? "green" : color,
       progress,
     }
 
-    // Save to Supabase
-    await supabase.from("notes").insert({
+    // Save to Supabase với timestamp chính xác
+    const { data, error } = await supabase.from("notes").insert({
       user_id: user.id,
       date: dateKey,
       text,
       type,
       color: type === "attendance" ? "green" : color,
       progress: progress || 0,
-    })
+      created_at: new Date().toISOString(), // Lưu thời gian chính xác
+    }).select()
+
+    if (data && data[0]) {
+      // Sử dụng timestamp từ database
+      const savedTimestamp = new Date(data[0].created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      newNote.id = data[0].id
+      newNote.timestamp = savedTimestamp
+    }
 
     setNotes((prev) => {
       const updated = {
@@ -129,154 +140,155 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       return updated
     })
   }
+}
 
-  const deleteNote = async (noteId: string) => {
-    await supabase.from("notes").delete().eq("id", noteId)
+const deleteNote = async (noteId: string) => {
+  await supabase.from("notes").delete().eq("id", noteId)
 
-    setNotes((prev) => ({
-      ...prev,
-      [dateKey]: prev[dateKey].filter((note) => note.id !== noteId),
-    }))
+  setNotes((prev) => ({
+    ...prev,
+    [dateKey]: prev[dateKey].filter((note) => note.id !== noteId),
+  }))
+}
+
+const updateNote = async (
+  noteId: string,
+  updates: Partial<{ text: string; color: string; progress: number; completed: boolean }>,
+) => {
+  await supabase.from("notes").update(updates).eq("id", noteId)
+
+  setNotes((prev) => ({
+    ...prev,
+    [dateKey]: prev[dateKey].map((note) => (note.id === noteId ? { ...note, ...updates } : note)),
+  }))
+}
+
+const handlePayrollConfirm = async (amount: number) => {
+  const today = new Date().toISOString().split("T")[0]
+
+  await supabase.from("payroll_history").insert({
+    user_id: user.id,
+    amount,
+    paid_date: today,
+  })
+
+  setPayrollHistory((prev) => [...prev, { date: today, amount }])
+  setShowPayrollModal(false)
+  setWorkStartDate(null)
+  setDaysWorked(0)
+}
+
+const handleLogout = async () => {
+  await supabase.auth.signOut()
+  router.push("/auth/login")
+}
+
+const getNoteCount = (date: Date): number => {
+  const key = date.toISOString().split("T")[0]
+  return notes[key]?.length || 0
+}
+
+const getHasAttendance = (date: Date): boolean => {
+  const key = date.toISOString().split("T")[0]
+  return notes[key]?.some((note) => note.type === "attendance") || false
+}
+
+const checkPayrollProgress = async () => {
+  if (!workStartDate) return
+
+  let count = 0
+  const currentCheck = new Date(workStartDate)
+  const endDate = new Date(selectedDate)
+
+  const notesArray = Object.values(notes).flat()
+  const attendanceNotes = notesArray.filter((n) => n.type === "attendance")
+
+  count = attendanceNotes.length
+
+  setDaysWorked(count)
+
+  if (count === 30) {
+    setShowPayrollModal(true)
   }
+}
 
-  const updateNote = async (
-    noteId: string,
-    updates: Partial<{ text: string; color: string; progress: number; completed: boolean }>,
-  ) => {
-    await supabase.from("notes").update(updates).eq("id", noteId)
+useEffect(() => {
+  checkPayrollProgress()
+}, [notes])
 
-    setNotes((prev) => ({
-      ...prev,
-      [dateKey]: prev[dateKey].map((note) => (note.id === noteId ? { ...note, ...updates } : note)),
-    }))
-  }
+if (showAdminDashboard && isAdmin) {
+  return <AdminDashboard onBack={() => setShowAdminDashboard(false)} currentUserEmail={user.email} />
+}
 
-  const handlePayrollConfirm = async (amount: number) => {
-    const today = new Date().toISOString().split("T")[0]
+return (
+  <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <Header currentTime={currentTime} />
 
-    await supabase.from("payroll_history").insert({
-      user_id: user.id,
-      amount,
-      paid_date: today,
-    })
-
-    setPayrollHistory((prev) => [...prev, { date: today, amount }])
-    setShowPayrollModal(false)
-    setWorkStartDate(null)
-    setDaysWorked(0)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/auth/login")
-  }
-
-  const getNoteCount = (date: Date): number => {
-    const key = date.toISOString().split("T")[0]
-    return notes[key]?.length || 0
-  }
-
-  const getHasAttendance = (date: Date): boolean => {
-    const key = date.toISOString().split("T")[0]
-    return notes[key]?.some((note) => note.type === "attendance") || false
-  }
-
-  const checkPayrollProgress = async () => {
-    if (!workStartDate) return
-
-    let count = 0
-    const currentCheck = new Date(workStartDate)
-    const endDate = new Date(selectedDate)
-
-    const notesArray = Object.values(notes).flat()
-    const attendanceNotes = notesArray.filter((n) => n.type === "attendance")
-
-    count = attendanceNotes.length
-
-    setDaysWorked(count)
-
-    if (count === 30) {
-      setShowPayrollModal(true)
-    }
-  }
-
-  useEffect(() => {
-    checkPayrollProgress()
-  }, [notes])
-
-  if (showAdminDashboard && isAdmin) {
-    return <AdminDashboard onBack={() => setShowAdminDashboard(false)} currentUserEmail={user.email} />
-  }
-
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <Header currentTime={currentTime} />
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Xin chào, {user.email}</h1>
-            {isAdmin && <p className="text-sm text-purple-600 dark:text-purple-400">Quản Trị Viên</p>}
-          </div>
-          <div className="flex gap-2">
-            {isAdmin && (
-              <Button variant="outline" onClick={() => setShowAdminDashboard(true)} className="gap-2">
-                <Settings className="w-4 h-4" />
-                Quản Lí Tài Khoản
-              </Button>
-            )}
-            <Button variant="outline" onClick={handleLogout} className="gap-2 bg-transparent">
-              <LogOut className="w-4 h-4" />
-              Đăng Xuất
-            </Button>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Xin chào, {user.email}</h1>
+          {isAdmin && <p className="text-sm text-purple-600 dark:text-purple-400">Quản Trị Viên</p>}
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <Card className="lg:col-span-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-            <CalendarView
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-              getNoteCount={getNoteCount}
-              getHasAttendance={getHasAttendance}
-            />
-          </Card>
-
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <Card className="flex-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg overflow-hidden">
-              <NotePanel
-                selectedDate={selectedDate}
-                dayNotes={dayNotes}
-                onAddNote={addNote}
-                onDeleteNote={deleteNote}
-                onUpdateNote={updateNote}
-                hasWorkStarted={workStartDate !== null}
-              />
-            </Card>
-
-            <div className="flex justify-end">
-              <ReportsButton onClick={() => setShowReportsModal(true)} />
-            </div>
-          </div>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button variant="outline" onClick={() => setShowAdminDashboard(true)} className="gap-2">
+              <Settings className="w-4 h-4" />
+              Quản Lí Tài Khoản
+            </Button>
+          )}
+          <Button variant="outline" onClick={handleLogout} className="gap-2 bg-transparent">
+            <LogOut className="w-4 h-4" />
+            Đăng Xuất
+          </Button>
         </div>
       </div>
 
-      <ReportsModal
-        daysWorked={daysWorked}
-        workStartDate={workStartDate}
-        payrollHistory={payrollHistory}
-        notes={notes}
-        isOpen={showReportsModal}
-        onClose={() => setShowReportsModal(false)}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <Card className="lg:col-span-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+          <CalendarView
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+            getNoteCount={getNoteCount}
+            getHasAttendance={getHasAttendance}
+          />
+        </Card>
 
-      {showPayrollModal && (
-        <PayrollModal
-          daysWorked={daysWorked}
-          onConfirm={handlePayrollConfirm}
-          onClose={() => setShowPayrollModal(false)}
-        />
-      )}
-    </main>
-  )
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <Card className="flex-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg overflow-hidden">
+            <NotePanel
+              selectedDate={selectedDate}
+              dayNotes={dayNotes}
+              onAddNote={addNote}
+              onDeleteNote={deleteNote}
+              onUpdateNote={updateNote}
+              hasWorkStarted={workStartDate !== null}
+            />
+          </Card>
+
+          <div className="flex justify-end">
+            <ReportsButton onClick={() => setShowReportsModal(true)} />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ReportsModal
+      daysWorked={daysWorked}
+      workStartDate={workStartDate}
+      payrollHistory={payrollHistory}
+      notes={notes}
+      isOpen={showReportsModal}
+      onClose={() => setShowReportsModal(false)}
+    />
+
+    {showPayrollModal && (
+      <PayrollModal
+        daysWorked={daysWorked}
+        onConfirm={handlePayrollConfirm}
+        onClose={() => setShowPayrollModal(false)}
+      />
+    )}
+  </main>
+)
 }
