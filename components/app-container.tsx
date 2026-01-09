@@ -62,9 +62,19 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
-      const { data: notesData } = await supabase.from("notes").select("*").eq("user_id", user.id).not("date", "is", null)
+      // Lấy notes có date (ghi chú thường)
+      const { data: notesData } = await supabase
+        .from("notes")
+        .select("*")
+        .eq("user_id", user.id)
+        .not("date", "is", null)
 
-      const { data: futureTasksData } = await supabase.from("notes").select("*").eq("user_id", user.id).is("date", null)
+      // Lấy future tasks (date = null)
+      const { data: futureTasksData } = await supabase
+        .from("notes")
+        .select("*")
+        .eq("user_id", user.id)
+        .is("date", null)
 
       const { data: payrollData } = await supabase.from("payroll_history").select("*").eq("user_id", user.id)
 
@@ -79,7 +89,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
               id: note.id,
               text: note.text,
               // Ưu tiên dùng timestamp đã lưu, nếu không có thì dùng created_at
-              timestamp: note.timestamp || new Date(note.created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+              timestamp:
+                note.timestamp ||
+                new Date(note.created_at).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }),
               type: note.type,
               color: note.color,
               progress: note.progress,
@@ -93,13 +109,15 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       }
 
       if (futureTasksData) {
-        setFutureTasks(futureTasksData.map(task => ({
-          id: task.id,
-          text: task.text,
-          color: task.color,
-          priority: task.priority,
-          created_at: task.created_at,
-        })))
+        setFutureTasks(
+          futureTasksData.map((task) => ({
+            id: task.id,
+            text: task.text,
+            color: task.color,
+            priority: task.priority,
+            created_at: task.created_at,
+          })),
+        )
       }
 
       if (payrollData) {
@@ -186,35 +204,44 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   }
 
   const addFutureTask = async (text: string, color = "blue", priority = "medium") => {
-    const { data } = await supabase.from("notes").insert({
-      user_id: user.id,
-      date: null, // Không gắn với ngày cụ thể
-      text,
-      type: "note",
-      color,
-      priority,
-      created_at: new Date().toISOString(),
-    }).select()
+    const { data } = await supabase
+      .from("notes")
+      .insert({
+        user_id: user.id,
+        date: null, // Không gắn với ngày cụ thể
+        text,
+        type: "note",
+        color,
+        priority,
+        created_at: new Date().toISOString(),
+      })
+      .select()
 
     if (data && data[0]) {
-      setFutureTasks(prev => [...prev, {
-        id: data[0].id,
-        text: data[0].text,
-        color: data[0].color,
-        priority: data[0].priority,
-        created_at: data[0].created_at,
-      }])
+      setFutureTasks((prev) => [
+        ...prev,
+        {
+          id: data[0].id,
+          text: data[0].text,
+          color: data[0].color,
+          priority: data[0].priority,
+          created_at: data[0].created_at,
+        },
+      ])
     }
   }
 
   const deleteFutureTask = async (taskId: string) => {
     await supabase.from("notes").delete().eq("id", taskId)
-    setFutureTasks(prev => prev.filter(task => task.id !== taskId))
+    setFutureTasks((prev) => prev.filter((task) => task.id !== taskId))
   }
 
-  const updateFutureTask = async (taskId: string, updates: Partial<{ text: string; color: string; priority: string }>) => {
+  const updateFutureTask = async (
+    taskId: string,
+    updates: Partial<{ text: string; color: string; priority: string }>,
+  ) => {
     await supabase.from("notes").update(updates).eq("id", taskId)
-    setFutureTasks(prev => prev.map(task => task.id === taskId ? { ...task, ...updates } : task))
+    setFutureTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task)))
   }
 
   const handlePayrollConfirm = async (amount: number) => {
