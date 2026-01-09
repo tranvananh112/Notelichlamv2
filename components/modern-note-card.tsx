@@ -115,7 +115,7 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                        <p className={`text-sm font-medium mb-2 break-words ${note.completed ? "line-through text-slate-400" : "text-slate-900 dark:text-white"}`}>
+                        <p className={`text-sm font-medium mb-2 break-words whitespace-pre-wrap ${note.completed ? "line-through text-slate-400" : "text-slate-900 dark:text-white"}`}>
                             {note.text}
                         </p>
 

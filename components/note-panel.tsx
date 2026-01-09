@@ -458,11 +458,49 @@ export default function NotePanel({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
             <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa ghi chú</h3>
+
+            {/* Bullet Library */}
+            <div className="mb-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+              </div>
+              <div className="grid grid-cols-8 gap-1">
+                {[
+                  { symbol: "•", name: "Bullet" },
+                  { symbol: "○", name: "Circle" },
+                  { symbol: "■", name: "Square" },
+                  { symbol: "▲", name: "Triangle" },
+                  { symbol: "★", name: "Star" },
+                  { symbol: "♦", name: "Diamond" },
+                  { symbol: "→", name: "Arrow" },
+                  { symbol: "✓", name: "Check" },
+                  { symbol: "✗", name: "Cross" },
+                  { symbol: "!", name: "Important" },
+                  { symbol: "?", name: "Question" },
+                  { symbol: "※", name: "Note" },
+                  { symbol: "⚡", name: "Priority" },
+                  { symbol: "🔥", name: "Hot" },
+                  { symbol: "💡", name: "Idea" },
+                  { symbol: "📝", name: "Task" },
+                ].map((bullet) => (
+                  <button
+                    key={bullet.symbol}
+                    onClick={() => setEditValues({ ...editValues, text: editValues.text + bullet.symbol + " " })}
+                    className="w-7 h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-sm font-bold transition-all hover:scale-105"
+                    title={bullet.name}
+                  >
+                    {bullet.symbol}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <textarea
               value={editValues.text}
               onChange={(e) => setEditValues({ ...editValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
+              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none leading-relaxed"
               placeholder="Chỉnh sửa nội dung ghi chú..."
+              rows={5}
             />
 
             {/* Trạng thái */}
@@ -482,8 +520,8 @@ export default function NotePanel({
                     key={s.value}
                     onClick={() => setEditValues({ ...editValues, status: s.value })}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${editValues.status === s.value
-                        ? `${s.color} text-white shadow-md`
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? `${s.color} text-white shadow-md`
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     <span>{s.icon}</span>
