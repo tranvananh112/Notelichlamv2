@@ -67,7 +67,8 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             acc[dateKey].push({
               id: note.id,
               text: note.text,
-              timestamp: new Date(note.created_at).toLocaleTimeString("vi-VN"),
+              // Ưu tiên dùng timestamp đã lưu, nếu không có thì dùng created_at
+              timestamp: note.timestamp || new Date(note.created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
               type: note.type,
               color: note.color,
               progress: note.progress,
@@ -118,7 +119,8 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       type,
       color: type === "attendance" ? "green" : color,
       progress: progress || 0,
-      created_at: now.toISOString(), // Lưu thời gian chính xác
+      created_at: now.toISOString(), // Lưu thời gian UTC
+      timestamp: timestamp, // Lưu timestamp hiển thị riêng
     }).select()
 
     if (data && data[0]) {
