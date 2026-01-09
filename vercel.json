@@ -1,0 +1,7 @@
+{
+  "buildCommand": "pnpm install --no-frozen-lockfile && next build",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "env": {
+    "PNPM_VERSION": "9.0.0"
+  }
+}
