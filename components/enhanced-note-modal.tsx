@@ -52,7 +52,7 @@ export default function EnhancedNoteModal({ onAddNote, onClose }: EnhancedNoteMo
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-            <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 max-w-2xl w-full shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-300">
                 <div className="p-8">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-8">
@@ -74,13 +74,56 @@ export default function EnhancedNoteModal({ onAddNote, onClose }: EnhancedNoteMo
                             <CalendarIcon className="w-4 h-4" />
                             Nội dung công việc
                         </label>
+
+                        {/* Bullet Library */}
+                        <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-500">Click để thêm vào ghi chú</span>
+                            </div>
+                            <div className="grid grid-cols-8 gap-2">
+                                {[
+                                    { symbol: "•", name: "Bullet" },
+                                    { symbol: "○", name: "Circle" },
+                                    { symbol: "■", name: "Square" },
+                                    { symbol: "▲", name: "Triangle" },
+                                    { symbol: "★", name: "Star" },
+                                    { symbol: "♦", name: "Diamond" },
+                                    { symbol: "→", name: "Arrow" },
+                                    { symbol: "✓", name: "Check" },
+                                    { symbol: "✗", name: "Cross" },
+                                    { symbol: "!", name: "Important" },
+                                    { symbol: "?", name: "Question" },
+                                    { symbol: "※", name: "Note" },
+                                    { symbol: "⚡", name: "Priority" },
+                                    { symbol: "🔥", name: "Hot" },
+                                    { symbol: "💡", name: "Idea" },
+                                    { symbol: "📝", name: "Task" },
+                                ].map((bullet) => (
+                                    <button
+                                        key={bullet.symbol}
+                                        onClick={() => setNoteText(prev => prev + bullet.symbol + " ")}
+                                        className="w-10 h-10 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-lg font-bold transition-all hover:scale-110"
+                                        title={bullet.name}
+                                    >
+                                        {bullet.symbol}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <textarea
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Mô tả chi tiết công việc cần làm..."
-                            className="w-full p-4 text-sm rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none transition-all"
-                            rows={5}
+                            placeholder="Mô tả chi tiết công việc cần làm...&#10;• Sử dụng bullet points để tổ chức ý tưởng&#10;• Click vào Bullet Library ở trên để thêm ký hiệu&#10;• Viết chi tiết để dễ theo dõi"
+                            className="w-full p-4 text-base rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none transition-all font-mono leading-relaxed"
+                            rows={8}
+                            style={{ minHeight: '200px' }}
                         />
+                        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
+                            <span>Sử dụng bullet points để tổ chức nội dung</span>
+                            <span>{noteText.length} ký tự</span>
+                        </div>
                     </div>
 
                     {/* Priority Selection */}

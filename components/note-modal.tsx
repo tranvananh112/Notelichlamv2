@@ -32,7 +32,7 @@ export default function NoteModal({ onAddNote, onClose }: NoteModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 max-w-md w-full shadow-2xl">
+      <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -50,13 +50,55 @@ export default function NoteModal({ onAddNote, onClose }: NoteModalProps) {
             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
               Nội dung ghi chú
             </label>
+
+            {/* Bullet Library */}
+            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+              </div>
+              <div className="grid grid-cols-8 gap-1">
+                {[
+                  { symbol: "•", name: "Bullet" },
+                  { symbol: "○", name: "Circle" },
+                  { symbol: "■", name: "Square" },
+                  { symbol: "▲", name: "Triangle" },
+                  { symbol: "★", name: "Star" },
+                  { symbol: "♦", name: "Diamond" },
+                  { symbol: "→", name: "Arrow" },
+                  { symbol: "✓", name: "Check" },
+                  { symbol: "✗", name: "Cross" },
+                  { symbol: "!", name: "Important" },
+                  { symbol: "?", name: "Question" },
+                  { symbol: "※", name: "Note" },
+                  { symbol: "⚡", name: "Priority" },
+                  { symbol: "🔥", name: "Hot" },
+                  { symbol: "💡", name: "Idea" },
+                  { symbol: "📝", name: "Task" },
+                ].map((bullet) => (
+                  <button
+                    key={bullet.symbol}
+                    onClick={() => setNoteText(prev => prev + bullet.symbol + " ")}
+                    className="w-8 h-8 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-sm font-bold transition-all hover:scale-110"
+                    title={bullet.name}
+                  >
+                    {bullet.symbol}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Nhập nội dung công việc của bạn..."
-              className="w-full p-4 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 resize-none"
-              rows={4}
+              placeholder="Nhập nội dung công việc của bạn...&#10;• Sử dụng bullet points để tổ chức ý tưởng&#10;• Click vào Bullet Library ở trên để thêm ký hiệu"
+              className="w-full p-4 text-base rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 resize-none font-mono leading-relaxed"
+              rows={6}
+              style={{ minHeight: '150px' }}
             />
+            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
+              <span>Sử dụng bullet points để tổ chức nội dung</span>
+              <span>{noteText.length} ký tự</span>
+            </div>
           </div>
 
           {/* Color Selection */}
