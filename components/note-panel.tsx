@@ -221,17 +221,19 @@ export default function NotePanel({
 
       {/* Attendance Check-in */}
       {!hasAttendance && activeTab !== "notes" && (
-        <Button
-          onClick={() => setShowAttendanceModal(true)}
-          className="w-full mb-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg py-2 flex items-center justify-center gap-2"
-        >
-          <CheckCircle className="w-4 h-4" />
-          {hasWorkStarted ? "Điểm danh hôm nay" : "Bắt đầu làm việc"}
-        </Button>
+        <div className="px-6 pb-4">
+          <Button
+            onClick={() => setShowAttendanceModal(true)}
+            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg py-2 flex items-center justify-center gap-2"
+          >
+            <CheckCircle className="w-4 h-4" />
+            {hasWorkStarted ? "Điểm danh hôm nay" : "Bắt đầu làm việc"}
+          </Button>
+        </div>
       )}
 
       {/* Notes List */}
-      <div className="flex-1 overflow-y-auto mb-4">
+      <div className="flex-1 overflow-y-auto p-6">
         {filteredNotes.length === 0 ? (
           <div className="flex items-center justify-center h-40 text-center">
             <div>
@@ -244,7 +246,7 @@ export default function NotePanel({
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredNotes.map((note) => (
               <ModernNoteCard
                 key={note.id}
@@ -259,7 +261,7 @@ export default function NotePanel({
       </div>
 
       {/* Add Note Button */}
-      <div className="space-y-2">
+      <div className="p-6 pt-0 space-y-2">
         <Button
           onClick={() => setShowNoteModal(true)}
           className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg py-2 flex items-center justify-center gap-2"
