@@ -300,7 +300,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           </Card>
         </div>
       )}
-      </div>
 
       <ReportsModal
         daysWorked={daysWorked}
@@ -311,15 +310,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         onClose={() => setShowReportsModal(false)}
       />
 
-      {
-    showPayrollModal && (
-      <PayrollModal
-        daysWorked={daysWorked}
-        onConfirm={handlePayrollConfirm}
-        onClose={() => setShowPayrollModal(false)}
-      />
-    )
-  }
-    </main >
+      {showPayrollModal && (
+        <PayrollModal
+          daysWorked={daysWorked}
+          onConfirm={handlePayrollConfirm}
+          onClose={() => setShowPayrollModal(false)}
+        />
+      )}
+    </main>
   )
 }
