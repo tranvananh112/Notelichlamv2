@@ -14,6 +14,7 @@ interface ReportsModalProps {
       type: "note" | "attendance"
       color?: string
       progress?: number
+      completed?: boolean
     }>
   >
   isOpen: boolean

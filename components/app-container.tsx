@@ -103,7 +103,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     setShowNotePanel(true)
   }
 
-  const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number, customTimestamp?: string) => {
+  const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number) => {
     // Lấy thời gian thực hiện tại
     const now = new Date()
     const timestamp = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
@@ -118,7 +118,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     }
 
     // Save to Supabase với timestamp chính xác
-    const { data, error } = await supabase.from("notes").insert({
+    const { data } = await supabase.from("notes").insert({
       user_id: user.id,
       date: dateKey,
       text,
@@ -138,10 +138,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       const updated = {
         ...prev,
         [dateKey]: [...(prev[dateKey] || []), newNote],
-      }
-
-      if (type === "attendance" && !workStartDate) {
-        setWorkStartDate(new Date(selectedDate))
       }
 
       return updated
@@ -217,18 +213,23 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   }
 
   const checkPayrollProgress = async () => {
-    if (!workStartDate) return
-
-    let count = 0
-    const currentCheck = new Date(workStartDate)
-    const endDate = new Date(selectedDate)
-
+    // Đếm tổng số ngày đã điểm danh
     const notesArray = Object.values(notes).flat()
     const attendanceNotes = notesArray.filter((n) => n.type === "attendance")
-
-    count = attendanceNotes.length
+    const count = attendanceNotes.length
 
     setDaysWorked(count)
+
+    // Tự động set workStartDate nếu chưa có và đã có điểm danh
+    if (!workStartDate && count > 0) {
+      // Tìm ngày điểm danh đầu tiên
+      const dates = Object.keys(notes).filter(date =>
+        notes[date].some(n => n.type === "attendance")
+      ).sort()
+      if (dates.length > 0) {
+        setWorkStartDate(new Date(dates[0]))
+      }
+    }
 
     if (count === 30) {
       setShowPayrollModal(true)
