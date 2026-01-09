@@ -207,22 +207,19 @@ export default function CalendarView({
                   </div>
                 </div>
               )}
-            </div>
-          )
-        }
 
-              {/* Hiển thị số ghi chú */ }
-              { noteCount > 0 && (
-            <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
-              {noteCount - (hasAttendance ? 1 : 0) > 0 && (
-                <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
+              {/* Hiển thị số ghi chú */}
+              {noteCount > 0 && (
+                <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
+                  {noteCount - (hasAttendance ? 1 : 0) > 0 && (
+                    <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-      </button>
-      )
+            </button>
+          )
         })}
+      </div>
     </div>
-    </div >
   )
 }
