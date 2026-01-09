@@ -97,8 +97,9 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const dayNotes = notes[dateKey] || []
 
   const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number, customTimestamp?: string) => {
-    // Sử dụng timestamp tùy chỉnh hoặc tạo mới
-    const timestamp = customTimestamp || new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    // Lấy thời gian thực hiện tại
+    const now = new Date()
+    const timestamp = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 
     const newNote = {
       id: Date.now().toString(),
@@ -117,14 +118,12 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       type,
       color: type === "attendance" ? "green" : color,
       progress: progress || 0,
-      created_at: new Date().toISOString(), // Lưu thời gian chính xác
+      created_at: now.toISOString(), // Lưu thời gian chính xác
     }).select()
 
     if (data && data[0]) {
-      // Sử dụng timestamp từ database
-      const savedTimestamp = new Date(data[0].created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
       newNote.id = data[0].id
-      newNote.timestamp = savedTimestamp
+      // Giữ nguyên timestamp đã tạo ở trên (thời gian thực)
     }
 
     setNotes((prev) => {
@@ -192,6 +191,23 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     return notes[key]?.some((note) => note.type === "attendance") || false
   }
 
+  const getAttendanceInfo = (date: Date): { type: string; icon: string } | null => {
+    const key = date.toISOString().split("T")[0]
+    const attendanceNote = notes[key]?.find((note) => note.type === "attendance")
+
+    if (!attendanceNote) return null
+
+    if (attendanceNote.text.includes("Cả ngày")) {
+      return { type: "full", icon: "🌞" }
+    } else if (attendanceNote.text.includes("Buổi sáng")) {
+      return { type: "morning", icon: "🌅" }
+    } else if (attendanceNote.text.includes("Buổi chiều")) {
+      return { type: "afternoon", icon: "🌆" }
+    }
+
+    return { type: "full", icon: "✓" }
+  }
+
   const checkPayrollProgress = async () => {
     if (!workStartDate) return
 
@@ -250,6 +266,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
               onDateSelect={setSelectedDate}
               getNoteCount={getNoteCount}
               getHasAttendance={getHasAttendance}
+              getAttendanceInfo={getAttendanceInfo}
             />
           </Card>
 

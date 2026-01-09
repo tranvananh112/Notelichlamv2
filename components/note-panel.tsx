@@ -181,26 +181,40 @@ export default function NotePanel({
 
               const colors = colorClasses[note.color || "blue"] || colorClasses.blue
 
+              // Xác định icon ca làm việc
+              const getWorkIcon = (text: string) => {
+                if (text.includes("Cả ngày")) return "🌞"
+                if (text.includes("Buổi sáng")) return "🌅"
+                if (text.includes("Buổi chiều")) return "🌆"
+                return "✓"
+              }
+
               return (
                 <Card
                   key={note.id}
-                  className={`p-3 border-l-4 ${colors.border} ${colors.bg} backdrop-blur-sm cursor-pointer hover:shadow-md transition-all ${note.completed ? "opacity-60" : ""}`}
+                  className={`p-3 border-l-4 ${colors.border} ${colors.bg} backdrop-blur-sm cursor-pointer hover:shadow-md transition-all ${note.completed ? "opacity-60" : ""} ${note.type === "attendance" ? "ring-2 ring-green-400/50" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 flex-1">
                       <div className="flex items-start gap-2 mb-1">
-                        <button
-                          onClick={() => handleToggleComplete(note.id, note.completed || false)}
-                          className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${note.completed
-                            ? "bg-green-500 border-green-500 text-white"
-                            : "border-slate-300 dark:border-slate-600 hover:border-green-500"
-                            }`}
-                        >
-                          {note.completed && <span className="text-xs">✓</span>}
-                        </button>
+                        {note.type === "attendance" ? (
+                          <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white shadow-lg ring-2 ring-green-300">
+                            <span className="text-lg">{getWorkIcon(note.text)}</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleComplete(note.id, note.completed || false)}
+                            className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${note.completed
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "border-slate-300 dark:border-slate-600 hover:border-green-500"
+                              }`}
+                          >
+                            {note.completed && <span className="text-xs">✓</span>}
+                          </button>
+                        )}
                         <p
-                          onClick={() => handleEditNote(note)}
-                          className={`text-sm font-medium flex-1 ${note.completed ? "line-through text-slate-500" : "text-slate-900 dark:text-white"}`}
+                          onClick={() => note.type !== "attendance" && handleEditNote(note)}
+                          className={`text-sm font-medium flex-1 ${note.completed ? "line-through text-slate-500" : note.type === "attendance" ? "text-green-700 dark:text-green-400 font-semibold" : "text-slate-900 dark:text-white"}`}
                         >
                           {note.text}
                         </p>
@@ -238,7 +252,7 @@ export default function NotePanel({
                           </div>
                         </div>
                       )}
-                      <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 ml-7">
+                      <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 ml-10">
                         <Clock className="w-3 h-3" />
                         {note.timestamp}
                       </div>

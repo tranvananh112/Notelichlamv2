@@ -10,6 +10,7 @@ interface CalendarViewProps {
   onDateSelect: (date: Date) => void
   getNoteCount: (date: Date) => number
   getHasAttendance: (date: Date) => boolean
+  getAttendanceInfo: (date: Date) => { type: string; icon: string } | null
 }
 
 export default function CalendarView({
@@ -17,6 +18,7 @@ export default function CalendarView({
   onDateSelect,
   getNoteCount,
   getHasAttendance,
+  getAttendanceInfo,
 }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
@@ -138,8 +140,10 @@ export default function CalendarView({
         {/* Current month's days */}
         {Array.from({ length: daysInMonth }).map((_, index) => {
           const day = index + 1
-          const noteCount = getNoteCount(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
-          const hasAttendance = getHasAttendance(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+          const currentDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+          const noteCount = getNoteCount(currentDate)
+          const hasAttendance = getHasAttendance(currentDate)
+          const attendanceInfo = getAttendanceInfo(currentDate)
           const selected = isSelected(day)
           const today = isToday(day)
           const weekend = isWeekend(day)
@@ -165,7 +169,7 @@ export default function CalendarView({
           return (
             <button
               key={day}
-              onClick={() => onDateSelect(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
+              onClick={() => onDateSelect(currentDate)}
               className={`
                 w-full h-24 rounded-xl p-3 transition-all duration-300 relative overflow-hidden group
                 ${selected
@@ -182,12 +186,17 @@ export default function CalendarView({
             >
               <div className={`text-base font-bold ${hasAttendance || selected ? "text-white" : ""}`}>{day}</div>
 
-              {/* Dấu tích xanh hình tròn tô đậm */}
-              {hasAttendance && (
-                <div className="absolute top-2 right-2">
-                  <div className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center shadow-lg ring-2 ring-white">
+              {/* Icon ca làm việc và dấu tích */}
+              {hasAttendance && attendanceInfo && (
+                <div className="absolute top-2 right-2 flex flex-col items-center gap-1">
+                  {/* Icon ca làm việc */}
+                  <div className="text-2xl drop-shadow-lg">
+                    {attendanceInfo.icon}
+                  </div>
+                  {/* Dấu tích xanh */}
+                  <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-lg ring-2 ring-white">
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-4 h-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -198,19 +207,22 @@ export default function CalendarView({
                   </div>
                 </div>
               )}
-
-              {/* Hiển thị số ghi chú */}
-              {noteCount > 0 && (
-                <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
-                  {noteCount - (hasAttendance ? 1 : 0) > 0 && (
-                    <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
-                  )}
-                </div>
-              )}
-            </button>
+            </div>
           )
+        }
+
+              {/* Hiển thị số ghi chú */ }
+              { noteCount > 0 && (
+            <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
+              {noteCount - (hasAttendance ? 1 : 0) > 0 && (
+                <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
+              )}
+            </div>
+          )}
+      </button>
+      )
         })}
-      </div>
     </div>
+    </div >
   )
 }
