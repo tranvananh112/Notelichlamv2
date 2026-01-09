@@ -55,6 +55,20 @@ export default function NotePanel({
 
   const hasAttendance = dayNotes.some((note) => note.type === "attendance")
 
+  // Thống kê
+  const stats = {
+    totalNotes: dayNotes.filter(n => n.type === "note").length,
+    totalAttendance: dayNotes.filter(n => n.type === "attendance").length,
+    completedNotes: dayNotes.filter(n => n.type === "note" && n.completed).length,
+    avgProgress: dayNotes.filter(n => n.type === "note").length > 0
+      ? Math.round(dayNotes.filter(n => n.type === "note").reduce((sum, n) => sum + (n.progress || 0), 0) / dayNotes.filter(n => n.type === "note").length)
+      : 0,
+    workShift: dayNotes.find(n => n.type === "attendance")?.text.includes("Cả ngày") ? "Cả ngày"
+      : dayNotes.find(n => n.type === "attendance")?.text.includes("Buổi sáng") ? "Buổi sáng"
+        : dayNotes.find(n => n.type === "attendance")?.text.includes("Buổi chiều") ? "Buổi chiều"
+          : null
+  }
+
   const weekDays = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]
   const months = [
     "Tháng 1",
@@ -97,11 +111,11 @@ export default function NotePanel({
     <div className="h-full flex flex-col">
       {/* Header with Close Button */}
       <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-700">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formattedDate}</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              {dayNotes.length} công việc {dayNotes.length !== 1 ? "" : ""}
+              {dayNotes.length} công việc
             </p>
           </div>
           {onClose && (
@@ -114,8 +128,67 @@ export default function NotePanel({
           )}
         </div>
 
+        {/* Statistics Cards */}
+        {hasAttendance && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            {/* Work Shift */}
+            <div className="bg-white/80 dark:bg-slate-700/50 rounded-xl p-3 border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+                  <span className="text-lg">
+                    {stats.workShift === "Cả ngày" ? "🌞" : stats.workShift === "Buổi sáng" ? "🌅" : "🌆"}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Ca làm</p>
+                  <p className="text-sm font-bold text-green-600 dark:text-green-400 truncate">{stats.workShift}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Notes */}
+            <div className="bg-white/80 dark:bg-slate-700/50 rounded-xl p-3 border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                  <span className="text-white text-lg">📝</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Ghi chú</p>
+                  <p className="text-sm font-bold text-purple-600 dark:text-purple-400">{stats.totalNotes}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Completed */}
+            <div className="bg-white/80 dark:bg-slate-700/50 rounded-xl p-3 border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Hoàn thành</p>
+                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{stats.completedNotes}/{stats.totalNotes}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Average Progress */}
+            <div className="bg-white/80 dark:bg-slate-700/50 rounded-xl p-3 border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                  <span className="text-white text-lg">📊</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Tiến độ TB</p>
+                  <p className="text-sm font-bold text-orange-600 dark:text-orange-400">{stats.avgProgress}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab Buttons */}
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2">
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "all"

@@ -209,6 +209,15 @@ export default function CalendarView({
                 </div>
               )}
 
+              {/* Badge Ngày làm việc */}
+              {hasAttendance && (
+                <div className="absolute top-2 left-2">
+                  <span className="px-2 py-0.5 bg-green-500 text-white text-[10px] font-bold rounded-full shadow-md">
+                    Làm việc
+                  </span>
+                </div>
+              )}
+
               {/* Hiển thị số ghi chú */}
               {noteCount > 0 && (
                 <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
