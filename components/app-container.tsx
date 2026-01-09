@@ -61,10 +61,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     return () => clearInterval(timer)
   }, [])
 
-  // Load future tasks from localStorage
+  // Load future tasks from localStorage for specific date
   useEffect(() => {
     const loadFutureTasks = () => {
-      const storageKey = `futureTasks_${user.id}`
+      if (!selectedDate) return
+
+      const dateKey = selectedDate.toISOString().split("T")[0]
+      const storageKey = `futureTasks_${user.id}_${dateKey}`
       const saved = localStorage.getItem(storageKey)
       if (saved) {
         try {
@@ -74,15 +77,20 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           console.error("Error loading future tasks:", error)
           setFutureTasks([])
         }
+      } else {
+        setFutureTasks([])
       }
     }
 
     loadFutureTasks()
-  }, [user.id])
+  }, [user.id, selectedDate])
 
-  // Save future tasks to localStorage
+  // Save future tasks to localStorage for specific date
   const saveFutureTasksToStorage = (tasks: typeof futureTasks) => {
-    const storageKey = `futureTasks_${user.id}`
+    if (!selectedDate) return
+
+    const dateKey = selectedDate.toISOString().split("T")[0]
+    const storageKey = `futureTasks_${user.id}_${dateKey}`
     localStorage.setItem(storageKey, JSON.stringify(tasks))
   }
 
