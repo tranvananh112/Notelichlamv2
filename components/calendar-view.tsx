@@ -121,7 +121,7 @@ export default function CalendarView({
 
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 gap-3 mb-4">
-        {["CN", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"].map((day) => (
+        {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day) => (
           <div key={day} className="text-center font-semibold text-sm text-slate-600 dark:text-slate-400 py-3">
             {day}
           </div>
@@ -130,8 +130,8 @@ export default function CalendarView({
 
       {/* Calendar Days */}
       <div className="grid grid-cols-7 gap-3">
-        {/* Previous month's days */}
-        {Array.from({ length: firstDayOfMonth }).map((_, index) => (
+        {/* Previous month's days - adjust for Monday start */}
+        {Array.from({ length: (firstDayOfMonth + 6) % 7 }).map((_, index) => (
           <div
             key={`prev-${index}`}
             className="w-full h-24 rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3 text-slate-400"

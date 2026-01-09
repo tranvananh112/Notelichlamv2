@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Trash2, Plus, Clock, CheckCircle, X } from "lucide-react"
 import NoteModal from "@/components/note-modal"
 import AttendanceModal from "@/components/attendance-modal"
+import ModernNoteCard from "@/components/modern-note-card"
 
 interface Note {
   id: string
@@ -76,18 +77,6 @@ export default function NotePanel({
     const timestamp = `${startTime}`
     onAddNote(attendanceText, "attendance", "green", undefined, timestamp)
     setShowAttendanceModal(false)
-  }
-
-  const getColorLabel = (color: string) => {
-    const labels: Record<string, string> = {
-      blue: "Xanh",
-      red: "Đỏ",
-      green: "Xanh lá",
-      yellow: "Vàng",
-      purple: "Tím",
-      pink: "Hồng",
-    }
-    return labels[color] || color
   }
 
   const handleEditNote = (note: Note) => {
@@ -182,105 +171,16 @@ export default function NotePanel({
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredNotes.map((note) => {
-              const colorClasses: Record<string, { border: string; bg: string }> = {
-                blue: { border: "border-l-blue-500", bg: "bg-blue-50/50 dark:bg-blue-900/20" },
-                red: { border: "border-l-red-500", bg: "bg-red-50/50 dark:bg-red-900/20" },
-                green: { border: "border-l-green-500", bg: "bg-green-50/50 dark:bg-green-900/20" },
-                yellow: { border: "border-l-yellow-500", bg: "bg-yellow-50/50 dark:bg-yellow-900/20" },
-                purple: { border: "border-l-purple-500", bg: "bg-purple-50/50 dark:bg-purple-900/20" },
-                pink: { border: "border-l-pink-500", bg: "bg-pink-50/50 dark:bg-pink-900/20" },
-              }
-
-              const colors = colorClasses[note.color || "blue"] || colorClasses.blue
-
-              // Xác định icon ca làm việc
-              const getWorkIcon = (text: string) => {
-                if (text.includes("Cả ngày")) return "🌞"
-                if (text.includes("Buổi sáng")) return "🌅"
-                if (text.includes("Buổi chiều")) return "🌆"
-                return "✓"
-              }
-
-              return (
-                <Card
-                  key={note.id}
-                  className={`p-3 border-l-4 ${colors.border} ${colors.bg} backdrop-blur-sm cursor-pointer hover:shadow-md transition-all ${note.completed ? "opacity-60" : ""} ${note.type === "attendance" ? "ring-2 ring-green-400/50" : ""}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0 flex-1">
-                      <div className="flex items-start gap-2 mb-1">
-                        {note.type === "attendance" ? (
-                          <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white shadow-lg ring-2 ring-green-300">
-                            <span className="text-lg">{getWorkIcon(note.text)}</span>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleToggleComplete(note.id, note.completed || false)}
-                            className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${note.completed
-                              ? "bg-green-500 border-green-500 text-white"
-                              : "border-slate-300 dark:border-slate-600 hover:border-green-500"
-                              }`}
-                          >
-                            {note.completed && <span className="text-xs">✓</span>}
-                          </button>
-                        )}
-                        <p
-                          onClick={() => note.type !== "attendance" && handleEditNote(note)}
-                          className={`text-sm font-medium flex-1 ${note.completed ? "line-through text-slate-500" : note.type === "attendance" ? "text-green-700 dark:text-green-400 font-semibold" : "text-slate-900 dark:text-white"}`}
-                        >
-                          {note.text}
-                        </p>
-                      </div>
-
-                      {note.progress !== undefined && note.progress > 0 && (
-                        <div className="mb-2 ml-7">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-slate-600 dark:text-slate-400">Tiến độ</span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              {note.progress}%
-                            </span>
-                          </div>
-                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all`}
-                              style={{
-                                width: `${note.progress}%`,
-                                backgroundColor:
-                                  note.color === "blue"
-                                    ? "#3b82f6"
-                                    : note.color === "red"
-                                      ? "#ef4444"
-                                      : note.color === "green"
-                                        ? "#22c55e"
-                                        : note.color === "yellow"
-                                          ? "#eab308"
-                                          : note.color === "purple"
-                                            ? "#a855f7"
-                                            : note.color === "pink"
-                                              ? "#ec4899"
-                                              : "#3b82f6",
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 ml-10">
-                        <Clock className="w-3 h-3" />
-                        {note.timestamp}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => onDeleteNote(note.id)}
-                      className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500 transition-colors flex-shrink-0"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </Card>
-              )
-            })}
+          <div className="space-y-4">
+            {filteredNotes.map((note) => (
+              <ModernNoteCard
+                key={note.id}
+                note={note}
+                onDelete={() => onDeleteNote(note.id)}
+                onToggleComplete={() => handleToggleComplete(note.id, note.completed || false)}
+                onEdit={() => note.type !== "attendance" && handleEditNote(note)}
+              />
+            ))}
           </div>
         )}
       </div>
