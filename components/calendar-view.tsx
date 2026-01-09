@@ -144,29 +144,66 @@ export default function CalendarView({
           const today = isToday(day)
           const weekend = isWeekend(day)
 
+          // Mảng màu gradient đẹp cho các ngày điểm danh
+          const attendanceColors = [
+            "from-blue-400 via-blue-500 to-blue-600",
+            "from-purple-400 via-purple-500 to-purple-600",
+            "from-pink-400 via-pink-500 to-pink-600",
+            "from-indigo-400 via-indigo-500 to-indigo-600",
+            "from-violet-400 via-violet-500 to-violet-600",
+            "from-fuchsia-400 via-fuchsia-500 to-fuchsia-600",
+            "from-cyan-400 via-cyan-500 to-cyan-600",
+            "from-teal-400 via-teal-500 to-teal-600",
+            "from-emerald-400 via-emerald-500 to-emerald-600",
+            "from-rose-400 via-rose-500 to-rose-600",
+          ]
+
+          // Chọn màu dựa trên ngày trong tháng
+          const colorIndex = (day - 1) % attendanceColors.length
+          const attendanceGradient = attendanceColors[colorIndex]
+
           return (
             <button
               key={day}
               onClick={() => onDateSelect(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
               className={`
-                w-full h-24 rounded-lg p-3 transition-all duration-200 relative overflow-hidden
-                ${
-                  selected
-                    ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg"
+                w-full h-24 rounded-xl p-3 transition-all duration-300 relative overflow-hidden group
+                ${selected
+                  ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-xl scale-105 ring-4 ring-purple-300/50"
+                  : hasAttendance
+                    ? `bg-gradient-to-br ${attendanceGradient} text-white shadow-lg hover:shadow-xl hover:scale-105 transform`
                     : today
-                      ? "bg-gradient-to-br from-yellow-200 to-orange-200 text-slate-900 font-bold"
+                      ? "bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 text-slate-900 font-bold shadow-md hover:shadow-lg"
                       : weekend
-                        ? "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30"
-                        : "bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600"
+                        ? "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800"
+                        : "bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 hover:border-purple-300"
                 }
               `}
             >
-              <div className="text-base font-bold">{day}</div>
+              <div className={`text-base font-bold ${hasAttendance || selected ? "text-white" : ""}`}>{day}</div>
+
+              {/* Dấu tích xanh hình tròn tô đậm */}
+              {hasAttendance && (
+                <div className="absolute top-2 right-2">
+                  <div className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center shadow-lg ring-2 ring-white">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth="3"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+
+              {/* Hiển thị số ghi chú */}
               {noteCount > 0 && (
-                <div className={`text-xs mt-2 ${selected ? "text-white" : "text-purple-600 dark:text-purple-400"}`}>
-                  {hasAttendance && <span className="block text-lg">✓</span>}
+                <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
                   {noteCount - (hasAttendance ? 1 : 0) > 0 && (
-                    <span className="text-[10px]">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
+                    <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
                   )}
                 </div>
               )}
