@@ -22,7 +22,7 @@ interface User {
 export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const router = useRouter()
   const supabase = createClient()
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [notes, setNotes] = useState<
     Record<
       string,
@@ -44,6 +44,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const [payrollHistory, setPayrollHistory] = useState<Array<{ date: string; amount: number }>>([])
   const [showReportsModal, setShowReportsModal] = useState(false)
   const [showAdminDashboard, setShowAdminDashboard] = useState(false)
+  const [showNotePanel, setShowNotePanel] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -94,8 +95,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     loadData()
   }, [user.id])
 
-  const dateKey = selectedDate.toISOString().split("T")[0]
-  const dayNotes = notes[dateKey] || []
+  const dateKey = selectedDate ? selectedDate.toISOString().split("T")[0] : ""
+  const dayNotes = dateKey ? notes[dateKey] || [] : []
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date)
+    setShowNotePanel(true)
+  }
 
   const addNote = async (text: string, type: "note" | "attendance" = "note", color = "blue", progress?: number, customTimestamp?: string) => {
     // Lấy thời gian thực hiện tại
@@ -261,34 +267,39 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <Card className="lg:col-span-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-            <CalendarView
+        {/* Calendar Full Screen */}
+        <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+          <CalendarView
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+            getNoteCount={getNoteCount}
+            getHasAttendance={getHasAttendance}
+            getAttendanceInfo={getAttendanceInfo}
+          />
+        </Card>
+
+        {/* Reports Button */}
+        <div className="flex justify-end mt-6">
+          <ReportsButton onClick={() => setShowReportsModal(true)} />
+        </div>
+      </div>
+
+      {/* Note Panel Drawer */}
+      {showNotePanel && selectedDate && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-4xl h-[90vh] bg-white dark:bg-slate-800 shadow-2xl overflow-hidden flex flex-col">
+            <NotePanel
               selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-              getNoteCount={getNoteCount}
-              getHasAttendance={getHasAttendance}
-              getAttendanceInfo={getAttendanceInfo}
+              dayNotes={dayNotes}
+              onAddNote={addNote}
+              onDeleteNote={deleteNote}
+              onUpdateNote={updateNote}
+              hasWorkStarted={workStartDate !== null}
+              onClose={() => setShowNotePanel(false)}
             />
           </Card>
-
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <Card className="flex-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg overflow-hidden">
-              <NotePanel
-                selectedDate={selectedDate}
-                dayNotes={dayNotes}
-                onAddNote={addNote}
-                onDeleteNote={deleteNote}
-                onUpdateNote={updateNote}
-                hasWorkStarted={workStartDate !== null}
-              />
-            </Card>
-
-            <div className="flex justify-end">
-              <ReportsButton onClick={() => setShowReportsModal(true)} />
-            </div>
-          </div>
         </div>
+      )}
       </div>
 
       <ReportsModal
@@ -300,13 +311,15 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         onClose={() => setShowReportsModal(false)}
       />
 
-      {showPayrollModal && (
-        <PayrollModal
-          daysWorked={daysWorked}
-          onConfirm={handlePayrollConfirm}
-          onClose={() => setShowPayrollModal(false)}
-        />
-      )}
-    </main>
+      {
+    showPayrollModal && (
+      <PayrollModal
+        daysWorked={daysWorked}
+        onConfirm={handlePayrollConfirm}
+        onClose={() => setShowPayrollModal(false)}
+      />
+    )
+  }
+    </main >
   )
 }

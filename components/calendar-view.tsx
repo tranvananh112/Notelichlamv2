@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
 interface CalendarViewProps {
-  selectedDate: Date
+  selectedDate: Date | null
   onDateSelect: (date: Date) => void
   getNoteCount: (date: Date) => number
   getHasAttendance: (date: Date) => boolean
@@ -57,6 +57,7 @@ export default function CalendarView({
   }
 
   const isSelected = (day: number) => {
+    if (!selectedDate) return false
     return (
       selectedDate.getDate() === day &&
       selectedDate.getMonth() === currentMonth.getMonth() &&

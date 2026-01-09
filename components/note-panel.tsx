@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Trash2, Plus, Clock, CheckCircle } from "lucide-react"
+import { Trash2, Plus, Clock, CheckCircle, X } from "lucide-react"
 import NoteModal from "@/components/note-modal"
 import AttendanceModal from "@/components/attendance-modal"
 
@@ -27,6 +27,7 @@ interface NotePanelProps {
     updates: Partial<{ text: string; color: string; progress: number; completed: boolean }>,
   ) => void
   hasWorkStarted: boolean
+  onClose?: () => void
 }
 
 export default function NotePanel({
@@ -36,6 +37,7 @@ export default function NotePanel({
   onDeleteNote,
   onUpdateNote,
   hasWorkStarted,
+  onClose,
 }: NotePanelProps) {
   const [activeTab, setActiveTab] = useState<"all" | "notes" | "attendance">("all")
   const [showNoteModal, setShowNoteModal] = useState(false)
@@ -103,44 +105,56 @@ export default function NotePanel({
   }
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      {/* Date Header */}
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{formattedDate}</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {dayNotes.length} mục{dayNotes.length !== 1 ? "" : ""}
-        </p>
-      </div>
+    <div className="h-full flex flex-col">
+      {/* Header with Close Button */}
+      <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-700">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formattedDate}</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              {dayNotes.length} công việc {dayNotes.length !== 1 ? "" : ""}
+            </p>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/50 dark:hover:bg-slate-600 rounded-xl transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          )}
+        </div>
 
-      {/* Tab Buttons */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setActiveTab("all")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "all"
-            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-            }`}
-        >
-          Tất cả
-        </button>
-        <button
-          onClick={() => setActiveTab("notes")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "notes"
-            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-            }`}
-        >
-          Ghi chú
-        </button>
-        <button
-          onClick={() => setActiveTab("attendance")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === "attendance"
-            ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-            : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-            }`}
-        >
-          Điểm danh
-        </button>
+        {/* Tab Buttons */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "all"
+              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+              : "bg-white/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+          >
+            Tất cả
+          </button>
+          <button
+            onClick={() => setActiveTab("notes")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "notes"
+              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+              : "bg-white/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+          >
+            Ghi chú
+          </button>
+          <button
+            onClick={() => setActiveTab("attendance")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "attendance"
+              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+              : "bg-white/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+          >
+            Điểm danh
+          </button>
+        </div>
       </div>
 
       {/* Attendance Check-in */}
