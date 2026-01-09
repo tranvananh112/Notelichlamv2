@@ -59,10 +59,35 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     return () => clearInterval(timer)
   }, [])
 
+  // Load future tasks from localStorage
+  useEffect(() => {
+    const loadFutureTasks = () => {
+      const storageKey = `futureTasks_${user.id}`
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        try {
+          const tasks = JSON.parse(saved)
+          setFutureTasks(tasks)
+        } catch (error) {
+          console.error("Error loading future tasks:", error)
+          setFutureTasks([])
+        }
+      }
+    }
+
+    loadFutureTasks()
+  }, [user.id])
+
+  // Save future tasks to localStorage
+  const saveFutureTasksToStorage = (tasks: typeof futureTasks) => {
+    const storageKey = `futureTasks_${user.id}`
+    localStorage.setItem(storageKey, JSON.stringify(tasks))
+  }
+
   // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
-      // Lấy TẤT CẢ notes của user trước
+      // Chỉ lấy notes có date (ghi chú thường)
       const { data: allNotesData } = await supabase
         .from("notes")
         .select("*")
@@ -73,9 +98,8 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       const { data: workData } = await supabase.from("work_tracking").select("*").eq("user_id", user.id).single()
 
       if (allNotesData) {
-        // Phân loại notes: có date vs không có date
+        // Chỉ lấy notes có date
         const notesWithDate = allNotesData.filter(note => note.date !== null)
-        const notesWithoutDate = allNotesData.filter(note => note.date === null)
 
         // Group notes có date
         const groupedNotes = notesWithDate.reduce(
@@ -102,17 +126,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           {} as typeof notes,
         )
         setNotes(groupedNotes)
-
-        // Set future tasks (notes không có date)
-        setFutureTasks(
-          notesWithoutDate.map((task) => ({
-            id: task.id,
-            text: task.text,
-            color: task.color,
-            priority: task.priority || "medium",
-            created_at: task.created_at,
-          })),
-        )
       }
 
       if (payrollData) {
@@ -198,45 +211,33 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     }))
   }
 
-  const addFutureTask = async (text: string, color = "blue", priority = "medium") => {
-    const { data } = await supabase
-      .from("notes")
-      .insert({
-        user_id: user.id,
-        date: null, // Không gắn với ngày cụ thể
-        text,
-        type: "note",
-        color,
-        priority,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-
-    if (data && data[0]) {
-      setFutureTasks((prev) => [
-        ...prev,
-        {
-          id: data[0].id,
-          text: data[0].text,
-          color: data[0].color,
-          priority: data[0].priority,
-          created_at: data[0].created_at,
-        },
-      ])
+  const addFutureTask = (text: string, color = "blue", priority = "medium") => {
+    const newTask = {
+      id: Date.now().toString(),
+      text,
+      color,
+      priority,
+      created_at: new Date().toISOString(),
     }
+
+    const updatedTasks = [...futureTasks, newTask]
+    setFutureTasks(updatedTasks)
+    saveFutureTasksToStorage(updatedTasks)
   }
 
-  const deleteFutureTask = async (taskId: string) => {
-    await supabase.from("notes").delete().eq("id", taskId)
-    setFutureTasks((prev) => prev.filter((task) => task.id !== taskId))
+  const deleteFutureTask = (taskId: string) => {
+    const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
+    setFutureTasks(updatedTasks)
+    saveFutureTasksToStorage(updatedTasks)
   }
 
-  const updateFutureTask = async (
+  const updateFutureTask = (
     taskId: string,
     updates: Partial<{ text: string; color: string; priority: string }>,
   ) => {
-    await supabase.from("notes").update(updates).eq("id", taskId)
-    setFutureTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task)))
+    const updatedTasks = futureTasks.map((task) => (task.id === taskId ? { ...task, ...updates } : task))
+    setFutureTasks(updatedTasks)
+    saveFutureTasksToStorage(updatedTasks)
   }
 
   const handlePayrollConfirm = async (amount: number) => {
