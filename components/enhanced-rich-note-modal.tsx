@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { X, Save, FileText, Palette, Flag, Tag, Calendar } from "lucide-react"
-import EnhancedWorkingRichEditor from "./enhanced-working-rich-editor"
+import UltraFastRichEditorV2 from "./ultra-fast-rich-editor-v2"
 
 interface EnhancedRichNoteModalProps {
     onAddNote: (text: string, color: string, progress: number, priority?: string, tags?: string[], category?: string) => void
@@ -135,7 +135,7 @@ export default function EnhancedRichNoteModal({
                 <div className="flex-1 overflow-y-auto" style={{ maxHeight: "60vh" }}>
                     {activeTab === "content" && (
                         <div className="p-6">
-                            <EnhancedWorkingRichEditor
+                            <UltraFastRichEditorV2
                                 value={noteContent}
                                 onChange={setNoteContent}
                                 placeholder="Bắt đầu viết ghi chú của bạn... Sử dụng thanh công cụ để định dạng văn bản."
