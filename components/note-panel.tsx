@@ -38,9 +38,9 @@ interface NotePanelProps {
     status?: string
     created_at: string
   }>
-  onAddFutureTask: (text: string, color: string, priority: string) => void
+  onAddFutureTask: (text: string, color: string, priority: string, tags?: string[]) => void
   onDeleteFutureTask: (taskId: string) => void
-  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string; status: string }>) => void
+  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string; status: string; tags: string[] }>) => void
 }
 
 export default function NotePanel({
@@ -63,12 +63,16 @@ export default function NotePanel({
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ text: string; progress: number; status: string }>({ text: "", progress: 0, status: "planning" })
   const [editingFutureTaskId, setEditingFutureTaskId] = useState<string | null>(null)
-  const [futureTaskValues, setFutureTaskValues] = useState<{ text: string; color: string; priority: string; status: string }>({
+  const [futureTaskValues, setFutureTaskValues] = useState<{ text: string; color: string; priority: string; status: string; tags: string[] }>({
     text: "",
     color: "blue",
     priority: "medium",
-    status: "planning"
+    status: "planning",
+    tags: []
   })
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterPriority, setFilterPriority] = useState<string>("all")
 
   const filteredNotes = dayNotes.filter((note) => {
     if (activeTab === "all") return true
@@ -79,6 +83,18 @@ export default function NotePanel({
   })
 
   const displayContent = activeTab === "future" ? futureTasks : filteredNotes
+
+  // Filter future tasks based on search and filters
+  const filteredFutureTasks = futureTasks.filter((task: any) => {
+    const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (task.tags && task.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+    const matchesStatus = filterStatus === "all" || task.status === filterStatus
+    const matchesPriority = filterPriority === "all" || task.priority === filterPriority
+
+    return matchesSearch && matchesStatus && matchesPriority
+  })
+
+  const finalDisplayContent = activeTab === "future" ? filteredFutureTasks : filteredNotes
 
   const hasAttendance = dayNotes.some((note) => note.type === "attendance")
 
@@ -277,114 +293,202 @@ export default function NotePanel({
       <div className="flex-1 overflow-y-auto p-6">
         {activeTab === "future" ? (
           // Future Tasks View
-          displayContent.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-center">
-              <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
-                  Chưa có nhiệm vụ dự kiến
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Thêm ý tưởng công việc cho tương lai</p>
+          <div>
+            {/* Search and Filter Controls */}
+            <div className="mb-4 space-y-3">
+              {/* Search */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm nhiệm vụ hoặc tags..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+                <div className="absolute left-3 top-2.5 text-slate-400">
+                  🔍
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex gap-2 overflow-x-auto">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                >
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="planning">Đang lên kế hoạch</option>
+                  <option value="inProgress">Đang tiến hành</option>
+                  <option value="working">Đang làm</option>
+                  <option value="nearDone">Gần xong</option>
+                  <option value="completed">Đã xong</option>
+                </select>
+
+                <select
+                  value={filterPriority}
+                  onChange={(e) => setFilterPriority(e.target.value)}
+                  className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                >
+                  <option value="all">Tất cả mức độ</option>
+                  <option value="high">Cao</option>
+                  <option value="medium">Trung bình</option>
+                  <option value="low">Thấp</option>
+                </select>
+
+                {(searchTerm || filterStatus !== "all" || filterPriority !== "all") && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("")
+                      setFilterStatus("all")
+                      setFilterPriority("all")
+                    }}
+                    className="px-3 py-1.5 text-xs rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50"
+                  >
+                    Xóa bộ lọc
+                  </button>
+                )}
+              </div>
+
+              {/* Results count */}
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                Hiển thị {filteredFutureTasks.length} / {futureTasks.length} nhiệm vụ
               </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {displayContent.map((task: any) => {
-                const priorityColors = {
-                  low: { bg: "bg-blue-50 dark:bg-blue-900/10", border: "border-l-blue-500", text: "text-blue-600", badge: "bg-blue-500" },
-                  medium: { bg: "bg-yellow-50 dark:bg-yellow-900/10", border: "border-l-yellow-500", text: "text-yellow-600", badge: "bg-yellow-500" },
-                  high: { bg: "bg-red-50 dark:bg-red-900/10", border: "border-l-red-500", text: "text-red-600", badge: "bg-red-500" },
-                }
-                const priority = priorityColors[task.priority as keyof typeof priorityColors] || priorityColors.medium
 
-                const statusConfig = {
-                  planning: { label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
-                  inProgress: { label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
-                  working: { label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
-                  nearDone: { label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
-                  completed: { label: "Đã xong", color: "bg-green-500", icon: "✅" },
-                }
-                const status = statusConfig[task.status as keyof typeof statusConfig] || statusConfig.planning
+            {finalDisplayContent.length === 0 ? (
+              <div className="flex items-center justify-center h-40 text-center">
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
+                    {searchTerm || filterStatus !== "all" || filterPriority !== "all"
+                      ? "Không tìm thấy nhiệm vụ phù hợp"
+                      : "Chưa có nhiệm vụ dự kiến"
+                    }
+                  </p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    {searchTerm || filterStatus !== "all" || filterPriority !== "all"
+                      ? "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm"
+                      : "Thêm ý tưởng công việc cho tương lai"
+                    }
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {finalDisplayContent.map((task: any) => {
+                  const priorityColors = {
+                    low: { bg: "bg-blue-50 dark:bg-blue-900/10", border: "border-l-blue-500", text: "text-blue-600", badge: "bg-blue-500" },
+                    medium: { bg: "bg-yellow-50 dark:bg-yellow-900/10", border: "border-l-yellow-500", text: "text-yellow-600", badge: "bg-yellow-500" },
+                    high: { bg: "bg-red-50 dark:bg-red-900/10", border: "border-l-red-500", text: "text-red-600", badge: "bg-red-500" },
+                  }
+                  const priority = priorityColors[task.priority as keyof typeof priorityColors] || priorityColors.medium
 
-                return (
-                  <Card key={task.id} className={`group relative overflow-hidden border-l-4 ${priority.border} ${priority.bg} hover:shadow-lg transition-all duration-300`}>
-                    <div className="p-4">
-                      <div className="flex items-start gap-3">
-                        {/* Status Icon */}
-                        <div className="flex-shrink-0 mt-0.5">
-                          <div className={`w-8 h-8 rounded-full ${status.color} flex items-center justify-center text-white shadow-md`}>
-                            <span className="text-sm">{status.icon}</span>
-                          </div>
-                        </div>
+                  const statusConfig = {
+                    planning: { label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                    inProgress: { label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                    working: { label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                    nearDone: { label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                    completed: { label: "Đã xong", color: "bg-green-500", icon: "✅" },
+                  }
+                  const status = statusConfig[task.status as keyof typeof statusConfig] || statusConfig.planning
 
-                        <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                          <p className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
-                            {task.text}
-                          </p>
-
-                          {/* Status và Priority badges */}
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className={`px-2 py-1 rounded-full ${status.color} text-white text-xs font-medium shadow-sm`}>
-                              {status.label}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
-                              {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">
-                              {new Date(task.created_at).toLocaleDateString("vi-VN")}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex-shrink-0 flex flex-col gap-1">
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => {
-                                setEditingFutureTaskId(task.id)
-                                setFutureTaskValues({
-                                  text: task.text,
-                                  color: task.color || "blue",
-                                  priority: task.priority || "medium",
-                                  status: task.status || "planning"
-                                })
-                              }}
-                              className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => onDeleteFutureTask(task.id)}
-                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                  return (
+                    <Card key={task.id} className={`group relative overflow-hidden border-l-4 ${priority.border} ${priority.bg} hover:shadow-lg transition-all duration-300`}>
+                      <div className="p-4">
+                        <div className="flex items-start gap-3">
+                          {/* Status Icon */}
+                          <div className="flex-shrink-0 mt-0.5">
+                            <div className={`w-8 h-8 rounded-full ${status.color} flex items-center justify-center text-white shadow-md`}>
+                              <span className="text-sm">{status.icon}</span>
+                            </div>
                           </div>
 
-                          {/* Quick Status Change */}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {Object.entries(statusConfig).map(([key, config]) => (
+                          <div className="flex-1 min-w-0 overflow-hidden pr-2">
+                            <p className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
+                              {task.text}
+                            </p>
+
+                            {/* Status và Priority badges */}
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className={`px-2 py-1 rounded-full ${status.color} text-white text-xs font-medium shadow-sm`}>
+                                {status.label}
+                              </span>
+                              <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
+                                {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
+                              </span>
+
+                              {/* Tags */}
+                              {task.tags && task.tags.length > 0 && (
+                                <>
+                                  {task.tags.slice(0, 2).map((tag: string, index: number) => (
+                                    <span key={index} className="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium">
+                                      #{tag}
+                                    </span>
+                                  ))}
+                                  {task.tags.length > 2 && (
+                                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs">
+                                      +{task.tags.length - 2}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="truncate">
+                                {new Date(task.created_at).toLocaleDateString("vi-VN")}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex-shrink-0 flex flex-col gap-1">
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
-                                key={key}
-                                onClick={() => onUpdateFutureTask(task.id, { status: key })}
-                                className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${task.status === key ? 'ring-2 ring-white' : ''}`}
-                                title={config.label}
+                                onClick={() => {
+                                  setEditingFutureTaskId(task.id)
+                                  setFutureTaskValues({
+                                    text: task.text,
+                                    color: task.color || "blue",
+                                    priority: task.priority || "medium",
+                                    status: task.status || "planning"
+                                  })
+                                }}
+                                className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
                               >
-                                {config.icon}
+                                <Edit3 className="w-4 h-4" />
                               </button>
-                            ))}
+                              <button
+                                onClick={() => onDeleteFutureTask(task.id)}
+                                className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Quick Status Change */}
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {Object.entries(statusConfig).map(([key, config]) => (
+                                <button
+                                  key={key}
+                                  onClick={() => onUpdateFutureTask(task.id, { status: key })}
+                                  className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${task.status === key ? 'ring-2 ring-white' : ''}`}
+                                  title={config.label}
+                                >
+                                  {config.icon}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
-          )
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         ) : (
           // Regular Notes View
           filteredNotes.length === 0 ? (
@@ -567,12 +671,96 @@ export default function NotePanel({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
             <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Thêm nhiệm vụ dự kiến</h3>
+
+            {/* Bullet Library */}
+            <div className="mb-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+              </div>
+              <div className="grid grid-cols-8 gap-1">
+                {[
+                  { symbol: "•", name: "Bullet" },
+                  { symbol: "○", name: "Circle" },
+                  { symbol: "■", name: "Square" },
+                  { symbol: "▲", name: "Triangle" },
+                  { symbol: "★", name: "Star" },
+                  { symbol: "♦", name: "Diamond" },
+                  { symbol: "→", name: "Arrow" },
+                  { symbol: "✓", name: "Check" },
+                  { symbol: "✗", name: "Cross" },
+                  { symbol: "!", name: "Important" },
+                  { symbol: "?", name: "Question" },
+                  { symbol: "※", name: "Note" },
+                  { symbol: "⚡", name: "Priority" },
+                  { symbol: "🔥", name: "Hot" },
+                  { symbol: "💡", name: "Idea" },
+                  { symbol: "📝", name: "Task" },
+                ].map((bullet) => (
+                  <button
+                    key={bullet.symbol}
+                    onClick={() => setFutureTaskValues({ ...futureTaskValues, text: futureTaskValues.text + bullet.symbol + " " })}
+                    className="w-7 h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-sm font-bold transition-all hover:scale-105"
+                    title={bullet.name}
+                  >
+                    {bullet.symbol}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <textarea
               value={futureTaskValues.text}
               onChange={(e) => setFutureTaskValues({ ...futureTaskValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
-              placeholder="Nhập ý tưởng công việc cho tương lai..."
+              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24 leading-relaxed"
+              placeholder="Nhập ý tưởng công việc cho tương lai...&#10;• Sử dụng bullet points để tổ chức ý tưởng&#10;• Mô tả chi tiết để dễ theo dõi"
             />
+
+            {/* Tags Input */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                Tags (tùy chọn)
+              </label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Nhập tag và nhấn Enter..."
+                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      const value = (e.target as HTMLInputElement).value.trim()
+                      if (value && !futureTaskValues.tags.includes(value)) {
+                        setFutureTaskValues({
+                          ...futureTaskValues,
+                          tags: [...futureTaskValues.tags, value]
+                        });
+                        (e.target as HTMLInputElement).value = ""
+                      }
+                    }
+                  }}
+                />
+              </div>
+              {futureTaskValues.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {futureTaskValues.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs flex items-center gap-1"
+                    >
+                      #{tag}
+                      <button
+                        onClick={() => setFutureTaskValues({
+                          ...futureTaskValues,
+                          tags: futureTaskValues.tags.filter((_, i) => i !== index)
+                        })}
+                        className="hover:text-indigo-900 dark:hover:text-indigo-100"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Trạng thái */}
             <div className="mb-4">
@@ -628,10 +816,7 @@ export default function NotePanel({
 
             <div className="flex gap-2 justify-end">
               <Button
-                onClick={() => {
-                  setShowFutureTaskModal(false)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                }}
+                onClick={() => setShowFutureTaskModal(false)}
                 className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
               >
                 Hủy
@@ -639,9 +824,9 @@ export default function NotePanel({
               <Button
                 onClick={() => {
                   if (futureTaskValues.text.trim()) {
-                    onAddFutureTask(futureTaskValues.text, futureTaskValues.color, futureTaskValues.priority)
+                    onAddFutureTask(futureTaskValues.text, futureTaskValues.color, futureTaskValues.priority, futureTaskValues.tags)
+                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning", tags: [] })
                     setShowFutureTaskModal(false)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
                   }
                 }}
                 className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
@@ -651,103 +836,131 @@ export default function NotePanel({
             </div>
           </Card>
         </div>
-      )}
-
-      {/* Modal chỉnh sửa nhiệm vụ dự kiến */}
-      {editingFutureTaskId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa nhiệm vụ dự kiến</h3>
-            <textarea
-              value={futureTaskValues.text}
-              onChange={(e) => setFutureTaskValues({ ...futureTaskValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
-              placeholder="Chỉnh sửa nội dung..."
-            />
-
-            {/* Trạng thái */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Trạng thái
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
-                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
-                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
-                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
-                  { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
-                      ? `${s.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    <span>{s.icon}</span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Mức độ ưu tiên */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Mức độ ưu tiên
-              </label>
-              <div className="flex gap-2">
-                {[
-                  { value: "low", label: "Thấp", color: "bg-blue-500" },
-                  { value: "medium", label: "Trung bình", color: "bg-yellow-500" },
-                  { value: "high", label: "Cao", color: "bg-red-500" },
-                ].map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                      ? `${p.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button
-                onClick={() => {
-                  setEditingFutureTaskId(null)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                }}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={() => {
-                  if (futureTaskValues.text.trim()) {
-                    onUpdateFutureTask(editingFutureTaskId, {
-                      text: futureTaskValues.text,
-                      priority: futureTaskValues.priority,
-                      status: futureTaskValues.status
-                    })
-                    setEditingFutureTaskId(null)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                  }
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
-              >
-                Lưu
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      )}nd">
+      <Button
+        onClick={() => {
+          setShowFutureTaskModal(false)
+          setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
+        }}
+        className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+      >
+        Hủy
+      </Button>
+      <Button
+        onClick={() => {
+          if (futureTaskValues.text.trim()) {
+            onAddFutureTask(futureTaskValues.text, futureTaskValues.color, futureTaskValues.priority)
+            setShowFutureTaskModal(false)
+            setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
+          }
+        }}
+        className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
+      >
+        Thêm
+      </Button>
     </div>
+    </Card >
+        </div >
+      )
+}
+
+{/* Modal chỉnh sửa nhiệm vụ dự kiến */ }
+{
+  editingFutureTaskId && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
+        <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa nhiệm vụ dự kiến</h3>
+        <textarea
+          value={futureTaskValues.text}
+          onChange={(e) => setFutureTaskValues({ ...futureTaskValues, text: e.target.value })}
+          className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
+          placeholder="Chỉnh sửa nội dung..."
+        />
+
+        {/* Trạng thái */}
+        <div className="mb-4">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+            Trạng thái
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+              { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+              { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+              { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+              { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
+            ].map((s) => (
+              <button
+                key={s.value}
+                onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
+                  ? `${s.color} text-white shadow-md`
+                  : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  }`}
+              >
+                <span>{s.icon}</span>
+                <span className="truncate">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mức độ ưu tiên */}
+        <div className="mb-4">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+            Mức độ ưu tiên
+          </label>
+          <div className="flex gap-2">
+            {[
+              { value: "low", label: "Thấp", color: "bg-blue-500" },
+              { value: "medium", label: "Trung bình", color: "bg-yellow-500" },
+              { value: "high", label: "Cao", color: "bg-red-500" },
+            ].map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
+                  ? `${p.color} text-white shadow-md`
+                  : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-2 justify-end">
+          <Button
+            onClick={() => {
+              setEditingFutureTaskId(null)
+              setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
+            }}
+            className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={() => {
+              if (futureTaskValues.text.trim()) {
+                onUpdateFutureTask(editingFutureTaskId, {
+                  text: futureTaskValues.text,
+                  priority: futureTaskValues.priority,
+                  status: futureTaskValues.status
+                })
+                setEditingFutureTaskId(null)
+                setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
+              }
+            }}
+            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
+          >
+            Lưu
+          </Button>
+        </div>
+      </Card>
+    </div>
+  )
+}
+    </div >
   )
 }

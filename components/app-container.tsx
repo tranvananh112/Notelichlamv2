@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { useSupabaseSync } from "@/hooks/use-supabase-sync"
 import CalendarView from "./calendar-view"
 import NotePanel from "./note-panel"
 import Header from "./header"
@@ -22,6 +23,10 @@ interface User {
 export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const router = useRouter()
   const supabase = createClient()
+  const { status: saveStatus, lastSaved, syncData } = useSupabaseSync({
+    onError: (error) => console.error('Sync failed:', error),
+    onSuccess: () => console.log('Data synced successfully')
+  })
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [notes, setNotes] = useState<
     Record<
@@ -61,23 +66,45 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     return () => clearInterval(timer)
   }, [])
 
-  // Load future tasks from localStorage for specific date
+  // Load future tasks from Supabase for specific date
   useEffect(() => {
-    const loadFutureTasks = () => {
+    const loadFutureTasks = async () => {
       if (!selectedDate) return
 
-      const dateKey = selectedDate.toISOString().split("T")[0]
-      const storageKey = `futureTasks_${user.id}_${dateKey}`
-      const saved = localStorage.getItem(storageKey)
-      if (saved) {
-        try {
-          const tasks = JSON.parse(saved)
-          setFutureTasks(tasks)
-        } catch (error) {
+      try {
+        const dateKey = selectedDate.toISOString().split("T")[0]
+        const { data: futureTasksData, error } = await supabase
+          .from("future_tasks")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("date", dateKey)
+          .order("created_at", { ascending: true })
+
+        if (error) {
           console.error("Error loading future tasks:", error)
-          setFutureTasks([])
+          // Fallback to localStorage if Supabase fails
+          const storageKey = `futureTasks_${user.id}_${dateKey}`
+          const saved = localStorage.getItem(storageKey)
+          if (saved) {
+            const tasks = JSON.parse(saved)
+            setFutureTasks(tasks)
+          } else {
+            setFutureTasks([])
+          }
+        } else {
+          const tasks = futureTasksData?.map(task => ({
+            id: task.id,
+            text: task.text,
+            color: task.color,
+            priority: task.priority,
+            status: task.status,
+            created_at: task.created_at,
+            tags: task.tags || []
+          })) || []
+          setFutureTasks(tasks)
         }
-      } else {
+      } catch (error) {
+        console.error("Error loading future tasks:", error)
         setFutureTasks([])
       }
     }
@@ -85,13 +112,16 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     loadFutureTasks()
   }, [user.id, selectedDate])
 
-  // Save future tasks to localStorage for specific date
-  const saveFutureTasksToStorage = (tasks: typeof futureTasks) => {
+  // Backup to localStorage (as fallback)
+  const backupFutureTasksToStorage = (tasks: typeof futureTasks) => {
     if (!selectedDate) return
-
-    const dateKey = selectedDate.toISOString().split("T")[0]
-    const storageKey = `futureTasks_${user.id}_${dateKey}`
-    localStorage.setItem(storageKey, JSON.stringify(tasks))
+    try {
+      const dateKey = selectedDate.toISOString().split("T")[0]
+      const storageKey = `futureTasks_${user.id}_${dateKey}`
+      localStorage.setItem(storageKey, JSON.stringify(tasks))
+    } catch (error) {
+      console.error("Error backing up to localStorage:", error)
+    }
   }
 
   // Load data from Supabase
@@ -222,34 +252,122 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     }))
   }
 
-  const addFutureTask = (text: string, color = "blue", priority = "medium") => {
-    const newTask = {
-      id: Date.now().toString(),
-      text,
-      color,
-      priority,
-      status: "planning", // Mặc định là "Đang lên kế hoạch"
-      created_at: new Date().toISOString(),
+  const addFutureTask = async (text: string, color = "blue", priority = "medium", tags: string[] = []) => {
+    if (!selectedDate) return
+
+    setSaveStatus('saving')
+    const dateKey = selectedDate.toISOString().split("T")[0]
+
+    try {
+      const { data, error } = await supabase
+        .from("future_tasks")
+        .insert({
+          user_id: user.id,
+          date: dateKey,
+          text,
+          color,
+          priority,
+          status: "planning",
+          tags
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("Error adding future task:", error)
+        setSaveStatus('error')
+        // Fallback to localStorage
+        const newTask = {
+          id: Date.now().toString(),
+          text,
+          color,
+          priority,
+          status: "planning",
+          created_at: new Date().toISOString(),
+          tags
+        }
+        const updatedTasks = [...futureTasks, newTask]
+        setFutureTasks(updatedTasks)
+        backupFutureTasksToStorage(updatedTasks)
+        return
+      }
+
+      const newTask = {
+        id: data.id,
+        text: data.text,
+        color: data.color,
+        priority: data.priority,
+        status: data.status,
+        created_at: data.created_at,
+        tags: data.tags || []
+      }
+
+      const updatedTasks = [...futureTasks, newTask]
+      setFutureTasks(updatedTasks)
+      backupFutureTasksToStorage(updatedTasks)
+      setSaveStatus('saved')
+      setLastSaved(new Date())
+    } catch (error) {
+      console.error("Error adding future task:", error)
+      setSaveStatus('error')
     }
-
-    const updatedTasks = [...futureTasks, newTask]
-    setFutureTasks(updatedTasks)
-    saveFutureTasksToStorage(updatedTasks)
   }
 
-  const deleteFutureTask = (taskId: string) => {
-    const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
-    setFutureTasks(updatedTasks)
-    saveFutureTasksToStorage(updatedTasks)
+  const deleteFutureTask = async (taskId: string) => {
+    setSaveStatus('saving')
+
+    try {
+      const { error } = await supabase
+        .from("future_tasks")
+        .delete()
+        .eq("id", taskId)
+
+      if (error) {
+        console.error("Error deleting future task:", error)
+        setSaveStatus('error')
+        return
+      }
+
+      const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
+      setFutureTasks(updatedTasks)
+      backupFutureTasksToStorage(updatedTasks)
+      setSaveStatus('saved')
+      setLastSaved(new Date())
+    } catch (error) {
+      console.error("Error deleting future task:", error)
+      setSaveStatus('error')
+    }
   }
 
-  const updateFutureTask = (
+  const updateFutureTask = async (
     taskId: string,
-    updates: Partial<{ text: string; color: string; priority: string; status: string }>,
+    updates: Partial<{ text: string; color: string; priority: string; status: string; tags: string[] }>
   ) => {
-    const updatedTasks = futureTasks.map((task) => (task.id === taskId ? { ...task, ...updates } : task))
-    setFutureTasks(updatedTasks)
-    saveFutureTasksToStorage(updatedTasks)
+    setSaveStatus('saving')
+
+    try {
+      const { error } = await supabase
+        .from("future_tasks")
+        .update(updates)
+        .eq("id", taskId)
+
+      if (error) {
+        console.error("Error updating future task:", error)
+        setSaveStatus('error')
+        return
+      }
+
+      const updatedTasks = futureTasks.map((task) =>
+        task.id === taskId ? { ...task, ...updates } : task
+      )
+      setFutureTasks(updatedTasks)
+      backupFutureTasksToStorage(updatedTasks)
+      setSaveStatus('saved')
+      setLastSaved(new Date())
+    } catch (error) {
+      console.error("Error updating future task:", error)
+      setSaveStatus('error')
+    }
   }
 
   const handlePayrollConfirm = async (amount: number) => {
@@ -340,6 +458,28 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Xin chào, {user.email}</h1>
             {isAdmin && <p className="text-sm text-purple-600 dark:text-purple-400">Quản Trị Viên</p>}
+
+            {/* Save Status Indicator */}
+            <div className="flex items-center gap-2 mt-2">
+              {saveStatus === 'saving' && (
+                <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                  <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Đang lưu...</span>
+                </div>
+              )}
+              {saveStatus === 'saved' && lastSaved && (
+                <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>Đã lưu lúc {lastSaved.toLocaleTimeString('vi-VN')}</span>
+                </div>
+              )}
+              {saveStatus === 'error' && (
+                <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span>Lỗi lưu dữ liệu - Đã backup local</span>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             {isAdmin && (
