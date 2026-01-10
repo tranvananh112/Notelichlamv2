@@ -255,27 +255,41 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const addFutureTask = async (text: string, color = "blue", priority = "medium", tags: string[] = []) => {
     if (!selectedDate) return
 
-    setSaveStatus('saving')
     const dateKey = selectedDate.toISOString().split("T")[0]
 
-    try {
-      const { data, error } = await supabase
-        .from("future_tasks")
-        .insert({
-          user_id: user.id,
-          date: dateKey,
-          text,
-          color,
-          priority,
-          status: "planning",
-          tags
-        })
-        .select()
-        .single()
+    await syncData(
+      async () => {
+        const { data, error } = await supabase
+          .from("future_tasks")
+          .insert({
+            user_id: user.id,
+            date: dateKey,
+            text,
+            color,
+            priority,
+            status: "planning",
+            tags
+          })
+          .select()
+          .single()
 
-      if (error) {
-        console.error("Error adding future task:", error)
-        setSaveStatus('error')
+        if (error) throw error
+
+        const newTask = {
+          id: data.id,
+          text: data.text,
+          color: data.color,
+          priority: data.priority,
+          status: data.status,
+          created_at: data.created_at,
+          tags: data.tags || []
+        }
+
+        const updatedTasks = [...futureTasks, newTask]
+        setFutureTasks(updatedTasks)
+        backupFutureTasksToStorage(updatedTasks)
+      },
+      () => {
         // Fallback to localStorage
         const newTask = {
           id: Date.now().toString(),
@@ -289,85 +303,47 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         const updatedTasks = [...futureTasks, newTask]
         setFutureTasks(updatedTasks)
         backupFutureTasksToStorage(updatedTasks)
-        return
       }
-
-      const newTask = {
-        id: data.id,
-        text: data.text,
-        color: data.color,
-        priority: data.priority,
-        status: data.status,
-        created_at: data.created_at,
-        tags: data.tags || []
-      }
-
-      const updatedTasks = [...futureTasks, newTask]
-      setFutureTasks(updatedTasks)
-      backupFutureTasksToStorage(updatedTasks)
-      setSaveStatus('saved')
-      setLastSaved(new Date())
-    } catch (error) {
-      console.error("Error adding future task:", error)
-      setSaveStatus('error')
-    }
+    )
   }
 
   const deleteFutureTask = async (taskId: string) => {
-    setSaveStatus('saving')
+    await syncData(
+      async () => {
+        const { error } = await supabase
+          .from("future_tasks")
+          .delete()
+          .eq("id", taskId)
 
-    try {
-      const { error } = await supabase
-        .from("future_tasks")
-        .delete()
-        .eq("id", taskId)
+        if (error) throw error
 
-      if (error) {
-        console.error("Error deleting future task:", error)
-        setSaveStatus('error')
-        return
+        const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
+        setFutureTasks(updatedTasks)
+        backupFutureTasksToStorage(updatedTasks)
       }
-
-      const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
-      setFutureTasks(updatedTasks)
-      backupFutureTasksToStorage(updatedTasks)
-      setSaveStatus('saved')
-      setLastSaved(new Date())
-    } catch (error) {
-      console.error("Error deleting future task:", error)
-      setSaveStatus('error')
-    }
+    )
   }
 
   const updateFutureTask = async (
     taskId: string,
     updates: Partial<{ text: string; color: string; priority: string; status: string; tags: string[] }>
   ) => {
-    setSaveStatus('saving')
+    await syncData(
+      async () => {
+        const { error } = await supabase
+          .from("future_tasks")
+          .update(updates)
+          .eq("id", taskId)
 
-    try {
-      const { error } = await supabase
-        .from("future_tasks")
-        .update(updates)
-        .eq("id", taskId)
+        if (error) throw error
 
-      if (error) {
-        console.error("Error updating future task:", error)
-        setSaveStatus('error')
-        return
+        const updatedTasks = futureTasks.map((task) =>
+          task.id === taskId ? { ...task, ...updates } : task
+        )
+        setFutureTasks(updatedTasks)
+        backupFutureTasksToStorage(updatedTasks)
       }
-
-      const updatedTasks = futureTasks.map((task) =>
-        task.id === taskId ? { ...task, ...updates } : task
-      )
-      setFutureTasks(updatedTasks)
-      backupFutureTasksToStorage(updatedTasks)
-      setSaveStatus('saved')
-      setLastSaved(new Date())
-    } catch (error) {
-      console.error("Error updating future task:", error)
-      setSaveStatus('error')
-    }
+    )
   }
 
   const handlePayrollConfirm = async (amount: number) => {
