@@ -31,6 +31,48 @@ const TEXT_COLORS = [
     "#008080", "#808080", "#FF69B4", "#32CD32", "#FFD700", "#FF4500"
 ]
 
+// Enhanced Color Palette giống Microsoft Word
+const THEME_COLORS = [
+    // Row 1 - Main theme colors
+    { name: "Black", color: "#000000", category: "theme" },
+    { name: "White", color: "#FFFFFF", category: "theme" },
+    { name: "Dark Blue", color: "#1F4E79", category: "theme" },
+    { name: "Blue", color: "#4472C4", category: "theme" },
+    { name: "Red", color: "#C55A5A", category: "theme" },
+    { name: "Green", color: "#70AD47", category: "theme" },
+    { name: "Purple", color: "#7030A0", category: "theme" },
+    { name: "Teal", color: "#44546A", category: "theme" },
+    { name: "Orange", color: "#E7E6E6", category: "theme" },
+    { name: "Yellow", color: "#FFC000", category: "theme" },
+]
+
+const THEME_VARIANTS = [
+    // Lighter variants
+    ["#F2F2F2", "#FFEBEE", "#E3F2FD", "#E8F5E8", "#FCE4EC", "#F3E5F5", "#E0F2F1", "#FFF3E0", "#FFFDE7", "#F9FBE7"],
+    ["#D9D9D9", "#FFCDD2", "#BBDEFB", "#C8E6C8", "#F8BBD0", "#E1BEE7", "#B2DFDB", "#FFE0B2", "#FFF9C4", "#F0F4C3"],
+    ["#BFBFBF", "#EF9A9A", "#90CAF9", "#A5D6A7", "#F48FB1", "#CE93D8", "#80CBC4", "#FFCC80", "#FFF176", "#DCE775"],
+    ["#A6A6A6", "#E57373", "#64B5F6", "#81C784", "#F06292", "#BA68C8", "#4DB6AC", "#FFB74D", "#FFEE58", "#C5E1A5"],
+    ["#808080", "#EF5350", "#42A5F5", "#66BB6A", "#EC407A", "#AB47BC", "#26A69A", "#FFA726", "#FFEB3B", "#AED581"],
+    // Darker variants
+    ["#595959", "#F44336", "#2196F3", "#4CAF50", "#E91E63", "#9C27B0", "#009688", "#FF9800", "#FFEB3B", "#8BC34A"],
+    ["#404040", "#D32F2F", "#1976D2", "#388E3C", "#C2185B", "#7B1FA2", "#00796B", "#F57C00", "#FBC02D", "#689F38"],
+    ["#262626", "#C62828", "#1565C0", "#2E7D32", "#AD1457", "#6A1B9A", "#00695C", "#EF6C00", "#F9A825", "#558B2F"],
+    ["#0D0D0D", "#B71C1C", "#0D47A1", "#1B5E20", "#880E4F", "#4A148C", "#004D40", "#E65100", "#F57F17", "#33691E"],
+]
+
+const STANDARD_COLORS = [
+    { name: "Dark Red", color: "#C00000" },
+    { name: "Red", color: "#FF0000" },
+    { name: "Orange", color: "#FFC000" },
+    { name: "Yellow", color: "#FFFF00" },
+    { name: "Light Green", color: "#92D050" },
+    { name: "Green", color: "#00B050" },
+    { name: "Light Blue", color: "#00B0F0" },
+    { name: "Blue", color: "#0070C0" },
+    { name: "Dark Blue", color: "#002060" },
+    { name: "Purple", color: "#7030A0" },
+]
+
 // Bullet Library - Thư viện ký hiệu
 const BULLET_LIBRARY = [
     { symbol: "•", name: "Bullet", category: "basic" },
@@ -315,8 +357,8 @@ export default function EnhancedWorkingRichEditor({
                         size="sm"
                         onClick={() => executeCommand('justifyCenter')}
                         className={`p-2 transition-all ${activeStates.justifyCenter
-                                ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
-                                : "hover:bg-green-100 dark:hover:bg-green-900"
+                            ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
+                            : "hover:bg-green-100 dark:hover:bg-green-900"
                             }`}
                         title="Căn giữa (Ctrl+E)"
                     >
@@ -328,8 +370,8 @@ export default function EnhancedWorkingRichEditor({
                         size="sm"
                         onClick={() => executeCommand('justifyRight')}
                         className={`p-2 transition-all ${activeStates.justifyRight
-                                ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
-                                : "hover:bg-green-100 dark:hover:bg-green-900"
+                            ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
+                            : "hover:bg-green-100 dark:hover:bg-green-900"
                             }`}
                         title="Căn phải"
                     >
@@ -344,8 +386,8 @@ export default function EnhancedWorkingRichEditor({
                         size="sm"
                         onClick={() => executeCommand('insertUnorderedList')}
                         className={`p-2 transition-all ${activeStates.insertUnorderedList
-                                ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
-                                : "hover:bg-purple-100 dark:hover:bg-purple-900"
+                            ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
+                            : "hover:bg-purple-100 dark:hover:bg-purple-900"
                             }`}
                         title="Danh sách (Ctrl+L)"
                     >
@@ -357,8 +399,8 @@ export default function EnhancedWorkingRichEditor({
                         size="sm"
                         onClick={() => executeCommand('insertOrderedList')}
                         className={`p-2 transition-all ${activeStates.insertOrderedList
-                                ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
-                                : "hover:bg-purple-100 dark:hover:bg-purple-900"
+                            ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
+                            : "hover:bg-purple-100 dark:hover:bg-purple-900"
                             }`}
                         title="Danh sách số"
                     >
@@ -367,7 +409,7 @@ export default function EnhancedWorkingRichEditor({
 
                     <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-1" />
 
-                    {/* Color Picker */}
+                    {/* Enhanced Color Picker giống Microsoft Word */}
                     <div className="relative">
                         <Button
                             variant="outline"
@@ -380,20 +422,98 @@ export default function EnhancedWorkingRichEditor({
                         </Button>
 
                         {showColors && (
-                            <div className="absolute top-full left-0 mt-1 p-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg z-50">
-                                <div className="grid grid-cols-6 gap-1">
-                                    {TEXT_COLORS.map((color) => (
-                                        <button
-                                            key={color}
-                                            className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition-transform shadow-sm"
-                                            style={{ backgroundColor: color }}
-                                            onClick={() => {
-                                                executeCommand('foreColor', color)
-                                                setShowColors(false)
-                                            }}
-                                            title={`Màu ${color}`}
-                                        />
+                            <div className="absolute top-full left-0 mt-1 p-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-xl z-50 w-80">
+                                {/* Automatic Color */}
+                                <div className="mb-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-4 h-4 bg-black rounded border"></div>
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Automatic</span>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            executeCommand('foreColor', '#000000')
+                                            setShowColors(false)
+                                        }}
+                                        className="w-full h-8 bg-black rounded hover:opacity-80 transition-opacity"
+                                        title="Automatic (Black)"
+                                    />
+                                </div>
+
+                                {/* Theme Colors */}
+                                <div className="mb-4">
+                                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Theme Colors</h4>
+
+                                    {/* Main theme colors */}
+                                    <div className="grid grid-cols-10 gap-1 mb-2">
+                                        {THEME_COLORS.map((colorObj, index) => (
+                                            <button
+                                                key={index}
+                                                className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition-transform shadow-sm"
+                                                style={{ backgroundColor: colorObj.color }}
+                                                onClick={() => {
+                                                    executeCommand('foreColor', colorObj.color)
+                                                    setShowColors(false)
+                                                }}
+                                                title={colorObj.name}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Theme variants */}
+                                    {THEME_VARIANTS.map((row, rowIndex) => (
+                                        <div key={rowIndex} className="grid grid-cols-10 gap-1 mb-1">
+                                            {row.map((color, colIndex) => (
+                                                <button
+                                                    key={`${rowIndex}-${colIndex}`}
+                                                    className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition-transform shadow-sm"
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => {
+                                                        executeCommand('foreColor', color)
+                                                        setShowColors(false)
+                                                    }}
+                                                    title={color}
+                                                />
+                                            ))}
+                                        </div>
                                     ))}
+                                </div>
+
+                                {/* Standard Colors */}
+                                <div className="mb-4">
+                                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Standard Colors</h4>
+                                    <div className="grid grid-cols-10 gap-1">
+                                        {STANDARD_COLORS.map((colorObj, index) => (
+                                            <button
+                                                key={index}
+                                                className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition-transform shadow-sm"
+                                                style={{ backgroundColor: colorObj.color }}
+                                                onClick={() => {
+                                                    executeCommand('foreColor', colorObj.color)
+                                                    setShowColors(false)
+                                                }}
+                                                title={colorObj.name}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Quick Colors */}
+                                <div>
+                                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Quick Colors</h4>
+                                    <div className="grid grid-cols-6 gap-1">
+                                        {TEXT_COLORS.map((color) => (
+                                            <button
+                                                key={color}
+                                                className="w-8 h-8 rounded border border-slate-300 hover:scale-110 transition-transform shadow-sm"
+                                                style={{ backgroundColor: color }}
+                                                onClick={() => {
+                                                    executeCommand('foreColor', color)
+                                                    setShowColors(false)
+                                                }}
+                                                title={`Quick Color ${color}`}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
