@@ -62,6 +62,40 @@ export default function EnhancedWorkingRichEditor({
     const [showBullets, setShowBullets] = useState(false)
     const [isReady, setIsReady] = useState(false)
 
+    // Active states for toolbar buttons - giống Microsoft Word
+    const [activeStates, setActiveStates] = useState({
+        bold: false,
+        italic: false,
+        underline: false,
+        justifyLeft: false,
+        justifyCenter: false,
+        justifyRight: false,
+        insertUnorderedList: false,
+        insertOrderedList: false
+    })
+
+    // Check active states - kiểm tra trạng thái format hiện tại
+    const checkActiveStates = useCallback(() => {
+        if (!editorRef.current) return
+
+        try {
+            const newStates = {
+                bold: document.queryCommandState('bold'),
+                italic: document.queryCommandState('italic'),
+                underline: document.queryCommandState('underline'),
+                justifyLeft: document.queryCommandState('justifyLeft'),
+                justifyCenter: document.queryCommandState('justifyCenter'),
+                justifyRight: document.queryCommandState('justifyRight'),
+                insertUnorderedList: document.queryCommandState('insertUnorderedList'),
+                insertOrderedList: document.queryCommandState('insertOrderedList')
+            }
+            setActiveStates(newStates)
+        } catch (error) {
+            // Fallback nếu queryCommandState không hoạt động
+            console.warn('queryCommandState failed:', error)
+        }
+    }, [])
+
     // Initialize editor
     useEffect(() => {
         if (editorRef.current && !isReady) {
@@ -70,7 +104,17 @@ export default function EnhancedWorkingRichEditor({
         }
     }, [value, isReady])
 
-    // Optimized command execution with debounce
+    // Check active states on selection change
+    useEffect(() => {
+        const handleSelectionChange = () => {
+            checkActiveStates()
+        }
+
+        document.addEventListener('selectionchange', handleSelectionChange)
+        return () => document.removeEventListener('selectionchange', handleSelectionChange)
+    }, [checkActiveStates])
+
+    // Optimized command execution with active state tracking
     const executeCommand = useCallback((command: string, value?: string) => {
         try {
             if (editorRef.current) {
@@ -79,12 +123,13 @@ export default function EnhancedWorkingRichEditor({
                 // Immediate update for better responsiveness
                 requestAnimationFrame(() => {
                     updateContent()
+                    checkActiveStates() // Update button states
                 })
             }
         } catch (error) {
             console.warn('Command failed:', command, error)
         }
-    }, [])
+    }, [checkActiveStates])
 
     // Optimized content update
     const updateContent = useCallback(() => {
@@ -94,13 +139,14 @@ export default function EnhancedWorkingRichEditor({
         }
     }, [onChange])
 
-    // Fast input handling
+    // Fast input handling with state checking
     const handleInput = useCallback(() => {
         // Use requestAnimationFrame for smooth performance
         requestAnimationFrame(() => {
             updateContent()
+            checkActiveStates() // Update button states khi gõ
         })
-    }, [updateContent])
+    }, [updateContent, checkActiveStates])
 
     // Insert bullet at cursor
     const insertBullet = useCallback((bullet: string) => {
@@ -208,12 +254,15 @@ export default function EnhancedWorkingRichEditor({
 
                     <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-1" />
 
-                    {/* Format Buttons */}
+                    {/* Format Buttons với Active States */}
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('bold')}
-                        className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900"
+                        className={`p-2 transition-all ${activeStates.bold
+                            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
+                            : "hover:bg-blue-100 dark:hover:bg-blue-900"
+                            }`}
                         title="In đậm (Ctrl+B)"
                     >
                         <Bold className="w-4 h-4" />
@@ -223,7 +272,10 @@ export default function EnhancedWorkingRichEditor({
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('italic')}
-                        className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900"
+                        className={`p-2 transition-all ${activeStates.italic
+                            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
+                            : "hover:bg-blue-100 dark:hover:bg-blue-900"
+                            }`}
                         title="In nghiêng (Ctrl+I)"
                     >
                         <Italic className="w-4 h-4" />
@@ -233,7 +285,10 @@ export default function EnhancedWorkingRichEditor({
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('underline')}
-                        className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900"
+                        className={`p-2 transition-all ${activeStates.underline
+                            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
+                            : "hover:bg-blue-100 dark:hover:bg-blue-900"
+                            }`}
                         title="Gạch chân (Ctrl+U)"
                     >
                         <Underline className="w-4 h-4" />
@@ -241,12 +296,15 @@ export default function EnhancedWorkingRichEditor({
 
                     <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-1" />
 
-                    {/* Alignment */}
+                    {/* Alignment với Active States */}
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('justifyLeft')}
-                        className="p-2 hover:bg-green-100 dark:hover:bg-green-900"
+                        className={`p-2 transition-all ${activeStates.justifyLeft
+                            ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
+                            : "hover:bg-green-100 dark:hover:bg-green-900"
+                            }`}
                         title="Căn trái"
                     >
                         <AlignLeft className="w-4 h-4" />
@@ -256,7 +314,10 @@ export default function EnhancedWorkingRichEditor({
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('justifyCenter')}
-                        className="p-2 hover:bg-green-100 dark:hover:bg-green-900"
+                        className={`p-2 transition-all ${activeStates.justifyCenter
+                                ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
+                                : "hover:bg-green-100 dark:hover:bg-green-900"
+                            }`}
                         title="Căn giữa (Ctrl+E)"
                     >
                         <AlignCenter className="w-4 h-4" />
@@ -266,7 +327,10 @@ export default function EnhancedWorkingRichEditor({
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('justifyRight')}
-                        className="p-2 hover:bg-green-100 dark:hover:bg-green-900"
+                        className={`p-2 transition-all ${activeStates.justifyRight
+                                ? "bg-green-500 text-white hover:bg-green-600 shadow-md"
+                                : "hover:bg-green-100 dark:hover:bg-green-900"
+                            }`}
                         title="Căn phải"
                     >
                         <AlignRight className="w-4 h-4" />
@@ -274,12 +338,15 @@ export default function EnhancedWorkingRichEditor({
 
                     <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-1" />
 
-                    {/* Lists */}
+                    {/* Lists với Active States */}
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('insertUnorderedList')}
-                        className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900"
+                        className={`p-2 transition-all ${activeStates.insertUnorderedList
+                                ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
+                                : "hover:bg-purple-100 dark:hover:bg-purple-900"
+                            }`}
                         title="Danh sách (Ctrl+L)"
                     >
                         <List className="w-4 h-4" />
@@ -289,7 +356,10 @@ export default function EnhancedWorkingRichEditor({
                         variant="outline"
                         size="sm"
                         onClick={() => executeCommand('insertOrderedList')}
-                        className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900"
+                        className={`p-2 transition-all ${activeStates.insertOrderedList
+                                ? "bg-purple-500 text-white hover:bg-purple-600 shadow-md"
+                                : "hover:bg-purple-100 dark:hover:bg-purple-900"
+                            }`}
                         title="Danh sách số"
                     >
                         <ListOrdered className="w-4 h-4" />
