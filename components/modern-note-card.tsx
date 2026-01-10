@@ -1,3 +1,6 @@
+"use client"
+
+import { Trash2, Clock, CheckCircle2, Edit3 } from "lucide-react"
 import RichNoteDisplay from "./rich-note-display"
 import { Card } from "@/components/ui/card"
 import { useState } from "react"
