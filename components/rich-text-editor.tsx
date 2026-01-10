@@ -85,12 +85,14 @@ export default function RichTextEditor({
         if (editorRef.current) {
             editorRef.current.focus()
             document.execCommand(command, false, value)
-            handleInput()
+            // Trigger input event manually
+            const event = new Event('input', { bubbles: true })
+            editorRef.current.dispatchEvent(event)
         }
     }, [])
 
     // Handle content change with proper event handling
-    const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
+    const handleInput = useCallback(() => {
         if (editorRef.current) {
             const content = editorRef.current.innerHTML
             onChange(content)
@@ -102,9 +104,11 @@ export default function RichTextEditor({
         if (editorRef.current) {
             editorRef.current.focus()
             document.execCommand('insertHTML', false, html)
-            handleInput({} as React.FormEvent<HTMLDivElement>)
+            // Trigger input event manually
+            const event = new Event('input', { bubbles: true })
+            editorRef.current.dispatchEvent(event)
         }
-    }, [handleInput])
+    }, [])
 
     // Handle key events to prevent issues
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
