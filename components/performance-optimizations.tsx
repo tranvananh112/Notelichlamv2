@@ -1,6 +1,6 @@
 // Performance optimization utilities and components
 
-import { memo, useMemo, useCallback } from 'react'
+import { memo, useMemo, useCallback, useState, useEffect } from 'react'
 
 // Memoized date formatter
 export const formatDate = memo(({ date }: { date: Date }) => {
