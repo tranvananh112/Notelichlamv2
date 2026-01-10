@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { X, Save, FileText, Palette, Flag, Tag, Calendar } from "lucide-react"
-import RichTextEditor from "./rich-text-editor"
+import SimpleRichEditor from "./simple-rich-editor"
 
 interface EnhancedRichNoteModalProps {
     onAddNote: (text: string, color: string, progress: number, priority?: string, tags?: string[], category?: string) => void
@@ -121,8 +121,8 @@ export default function EnhancedRichNoteModal({
                             key={id}
                             onClick={() => setActiveTab(id as any)}
                             className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all ${activeTab === id
-                                    ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 bg-white dark:bg-slate-700"
-                                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 bg-white dark:bg-slate-700"
+                                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                 }`}
                         >
                             <Icon className="w-4 h-4" />
@@ -135,7 +135,7 @@ export default function EnhancedRichNoteModal({
                 <div className="flex-1 overflow-y-auto" style={{ maxHeight: "60vh" }}>
                     {activeTab === "content" && (
                         <div className="p-6">
-                            <RichTextEditor
+                            <SimpleRichEditor
                                 value={noteContent}
                                 onChange={setNoteContent}
                                 placeholder="Bắt đầu viết ghi chú của bạn... Sử dụng thanh công cụ để định dạng văn bản."

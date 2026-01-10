@@ -73,16 +73,27 @@ export default function RichTextEditor({
     const [currentFont, setCurrentFont] = useState("Arial")
     const [currentSize, setCurrentSize] = useState(14)
 
-    // Execute formatting command
+    // Initialize editor content
+    useEffect(() => {
+        if (editorRef.current && value !== editorRef.current.innerHTML) {
+            editorRef.current.innerHTML = value
+        }
+    }, [value])
+
+    // Execute formatting command with proper focus handling
     const execCommand = useCallback((command: string, value?: string) => {
-        document.execCommand(command, false, value)
-        editorRef.current?.focus()
+        if (editorRef.current) {
+            editorRef.current.focus()
+            document.execCommand(command, false, value)
+            handleInput()
+        }
     }, [])
 
-    // Handle content change
-    const handleInput = useCallback(() => {
+    // Handle content change with proper event handling
+    const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
         if (editorRef.current) {
-            onChange(editorRef.current.innerHTML)
+            const content = editorRef.current.innerHTML
+            onChange(content)
         }
     }, [onChange])
 
@@ -91,9 +102,34 @@ export default function RichTextEditor({
         if (editorRef.current) {
             editorRef.current.focus()
             document.execCommand('insertHTML', false, html)
-            handleInput()
+            handleInput({} as React.FormEvent<HTMLDivElement>)
         }
     }, [handleInput])
+
+    // Handle key events to prevent issues
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        // Handle common shortcuts
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case 'b':
+                    e.preventDefault()
+                    execCommand('bold')
+                    break
+                case 'i':
+                    e.preventDefault()
+                    execCommand('italic')
+                    break
+                case 'u':
+                    e.preventDefault()
+                    execCommand('underline')
+                    break
+                case 'z':
+                    e.preventDefault()
+                    execCommand(e.shiftKey ? 'redo' : 'undo')
+                    break
+            }
+        }
+    }, [execCommand])
 
     // Format buttons data
     const formatButtons = [
@@ -390,10 +426,16 @@ export default function RichTextEditor({
             <div
                 ref={editorRef}
                 contentEditable
-                className="p-4 outline-none min-h-[200px] prose prose-sm max-w-none dark:prose-invert"
-                style={{ minHeight }}
+                className="p-4 outline-none min-h-[200px] prose prose-sm max-w-none dark:prose-invert focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                style={{
+                    minHeight,
+                    direction: 'ltr',
+                    textAlign: 'left',
+                    unicodeBidi: 'normal'
+                }}
                 onInput={handleInput}
-                dangerouslySetInnerHTML={{ __html: value }}
+                onKeyDown={handleKeyDown}
+                suppressContentEditableWarning={true}
                 data-placeholder={placeholder}
             />
 
@@ -411,12 +453,25 @@ export default function RichTextEditor({
             )}
 
             <style jsx>{`
-        [contenteditable]:empty:before {
-          content: attr(data-placeholder);
-          color: #9ca3af;
-          font-style: italic;
-        }
-      `}</style>
+                [contenteditable]:empty:before {
+                    content: attr(data-placeholder);
+                    color: #9ca3af;
+                    font-style: italic;
+                    pointer-events: none;
+                }
+                [contenteditable] {
+                    direction: ltr !important;
+                    text-align: left !important;
+                    unicode-bidi: normal !important;
+                }
+                [contenteditable]:focus {
+                    outline: none;
+                }
+                [contenteditable] * {
+                    direction: ltr !important;
+                    unicode-bidi: normal !important;
+                }
+            `}</style>
         </Card>
     )
 }
