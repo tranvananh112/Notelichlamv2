@@ -23,6 +23,7 @@ import ReportsButton from "./reports-button"
 import { Card } from "./ui/card"
 import { Button } from "./ui/button"
 import { LogOut, Settings } from "lucide-react"
+import router from "next/router"
 
 interface User {
   id: string
