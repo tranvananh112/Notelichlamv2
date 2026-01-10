@@ -1,6 +1,4 @@
-"use client"
-
-import { Trash2, Clock, CheckCircle2, Edit3, MoreVertical } from "lucide-react"
+import RichNoteDisplay from "./rich-note-display"
 import { Card } from "@/components/ui/card"
 import { useState } from "react"
 
@@ -115,9 +113,12 @@ export default function ModernNoteCard({ note, onDelete, onToggleComplete, onEdi
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                        <p className={`text-sm font-medium mb-2 break-words whitespace-pre-wrap ${note.completed ? "line-through text-slate-400" : "text-slate-900 dark:text-white"}`}>
-                            {note.text}
-                        </p>
+                        <div className={`text-sm font-medium mb-2 break-words ${note.completed ? "line-through text-slate-400" : "text-slate-900 dark:text-white"}`}>
+                            <RichNoteDisplay
+                                content={note.text}
+                                className="rich-note-content"
+                            />
+                        </div>
 
                         {/* Status Badge */}
                         {note.status && (
