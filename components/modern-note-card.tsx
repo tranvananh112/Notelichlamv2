@@ -30,7 +30,6 @@ export default function ModernNoteCard({
     onEdit,
     onUpdateStatus,
 }: ModernNoteCardProps) {
-    const [showMenu, setShowMenu] = useState(false)
     const colorStyles: Record<string, { bg: string; border: string; text: string; badge: string }> = {
         blue: { bg: "bg-blue-50 dark:bg-blue-900/10", border: "border-l-blue-500", text: "text-blue-700 dark:text-blue-300", badge: "bg-blue-500" },
         red: { bg: "bg-red-50 dark:bg-red-900/10", border: "border-l-red-500", text: "text-red-700 dark:text-red-300", badge: "bg-red-500" },
@@ -97,7 +96,7 @@ export default function ModernNoteCard({
     }
 
     return (
-        <Card className={`group relative overflow-hidden border-l-4 ${colors.border} ${colors.bg} hover:shadow-lg transition-all duration-300 animate-in slide-in-from-left`}>
+        <Card className={`group relative overflow-hidden border-l-4 ${colors.border} ${colors.bg} hover:shadow-lg transition-all duration-300 animate-in slide-in-from-left ${note.completed ? 'opacity-85' : ''}`}>
             <div className="p-4">
                 <div className="flex items-start gap-3">
                     {/* Status Icon */}
@@ -109,16 +108,8 @@ export default function ModernNoteCard({
                         </div>
                     )}
 
-                    {/* Toggle Switch */}
-                    <div className="flex-shrink-0 mt-1">
-                        <TaskToggleSwitch
-                            completed={note.completed || false}
-                            onChange={onToggleComplete}
-                        />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 overflow-hidden pr-2">
+                    {/* Content - Expanded to take more space */}
+                    <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
                             <RichNoteDisplay
                                 content={note.text}
@@ -158,8 +149,15 @@ export default function ModernNoteCard({
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex-shrink-0 flex flex-col gap-1">
+                    {/* Right Side Actions */}
+                    <div className="flex-shrink-0 flex flex-col gap-2 items-end">
+                        {/* Toggle Switch - Positioned at top right */}
+                        <TaskToggleSwitch
+                            completed={note.completed || false}
+                            onChange={onToggleComplete}
+                        />
+
+                        {/* Actions - Below toggle switch */}
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={onEdit}
@@ -175,14 +173,14 @@ export default function ModernNoteCard({
                             </button>
                         </div>
 
-                        {/* Quick Status Change */}
+                        {/* Quick Status Change - Bottom */}
                         {onUpdateStatus && (
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {Object.entries(getStatusOptions()).map(([key, config]) => (
+                                {Object.entries(getStatusOptions()).slice(0, 3).map(([key, config]) => (
                                     <button
                                         key={key}
                                         onClick={() => onUpdateStatus(key)}
-                                        className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${note.status === key ? 'ring-2 ring-white' : ''}`}
+                                        className={`w-5 h-5 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${note.status === key ? 'ring-2 ring-white' : ''}`}
                                         title={config.label}
                                     >
                                         {config.icon}
@@ -194,11 +192,11 @@ export default function ModernNoteCard({
                 </div>
             </div>
 
-            {/* Completed Badge */}
+            {/* Completed Badge - Top right corner */}
             {note.completed && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full shadow-lg">
-                        Hoàn thành
+                        ✓ Hoàn thành
                     </span>
                 </div>
             )}

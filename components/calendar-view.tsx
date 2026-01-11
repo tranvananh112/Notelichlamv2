@@ -224,20 +224,12 @@ export default function CalendarView({
                 </div>
               )}
 
-              {/* Hiển thị số ghi chú, nhiệm vụ dự kiến và ghi chú chưa hoàn thành */}
-              <div className="absolute bottom-2 left-2 flex flex-col gap-1">
-                {noteCount > 0 && (
-                  <div className={`text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
-                    {noteCount - (hasAttendance ? 1 : 0) > 0 && (
-                      <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
-                    )}
-                  </div>
-                )}
-
+              {/* Hiển thị badges theo hàng ngang, gọn gàng */}
+              <div className="absolute bottom-1 left-1 right-1 flex flex-wrap gap-1 justify-start">
                 {/* Hiển thị số nhiệm vụ dự kiến chưa hoàn thành */}
                 {futureTasksCount > 0 && (
-                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${selected || hasAttendance
-                    ? "bg-white/20 text-white"
+                  <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${selected || hasAttendance
+                    ? "bg-white/25 text-white"
                     : "bg-amber-500 text-white"
                     } shadow-sm`}>
                     <span>📋</span>
@@ -247,12 +239,22 @@ export default function CalendarView({
 
                 {/* Hiển thị số ghi chú chưa hoàn thành */}
                 {incompleteNoteCount > 0 && (
-                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${selected || hasAttendance
-                    ? "bg-white/20 text-white"
+                  <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${selected || hasAttendance
+                    ? "bg-white/25 text-white"
                     : "bg-red-500 text-white"
                     } shadow-sm`}>
                     <span>📝</span>
                     <span>{incompleteNoteCount}</span>
+                  </div>
+                )}
+
+                {/* Hiển thị tổng số ghi chú (nếu có) */}
+                {noteCount > 0 && noteCount - (hasAttendance ? 1 : 0) > 0 && (
+                  <div className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${selected || hasAttendance
+                    ? "bg-white/20 text-white/90"
+                    : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                    } shadow-sm`}>
+                    {noteCount - (hasAttendance ? 1 : 0)} tổng
                   </div>
                 )}
               </div>
