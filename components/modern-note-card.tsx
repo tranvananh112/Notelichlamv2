@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Trash2, Clock, Edit3 } from "lucide-react"
 import RichNoteDisplay from "./rich-note-display"
+import TaskToggleSwitch from "./task-toggle-switch"
 import { Card } from "@/components/ui/card"
 
 interface ModernNoteCardProps {
@@ -125,6 +126,15 @@ export default function ModernNoteCard({
                             </div>
                         )}
 
+                        {/* Completed Status Badge */}
+                        {note.completed && (
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                <span className="px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium shadow-sm">
+                                    ✅ Đã hoàn thành
+                                </span>
+                            </div>
+                        )}
+
                         {/* Progress Bar */}
                         {note.progress !== undefined && note.progress > 0 && !note.completed && (
                             <div className="mb-2">
@@ -163,7 +173,13 @@ export default function ModernNoteCard({
 
                     {/* Right Side Actions */}
                     <div className="flex-shrink-0 flex flex-col gap-2 items-end">
-                        {/* Actions - Edit and Delete buttons */}
+                        {/* Toggle Switch - Positioned at top right */}
+                        <TaskToggleSwitch
+                            completed={note.completed || false}
+                            onChange={onToggleComplete}
+                        />
+
+                        {/* Actions - Below toggle switch */}
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={onEdit}
@@ -179,7 +195,7 @@ export default function ModernNoteCard({
                             </button>
                         </div>
 
-                        {/* Quick Status Change - Only show when not completed */}
+                        {/* Quick Status Change - Bottom - Only show when not completed */}
                         {onUpdateStatus && !note.completed && (
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {Object.entries(getStatusOptions()).slice(0, 3).map(([key, config]) => (
