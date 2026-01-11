@@ -96,21 +96,21 @@ export default function ModernNoteCard({
     }
 
     return (
-        <Card className={`group relative overflow-hidden border-l-4 ${colors.border} ${colors.bg} hover:shadow-lg transition-all duration-300 animate-in slide-in-from-left ${note.completed ? 'opacity-85' : ''}`}>
+        <Card className={`group relative overflow-hidden border-l-4 ${note.completed ? 'border-l-green-500 bg-green-50 dark:bg-green-900/10' : `${colors.border} ${colors.bg} border-2 border-red-500 dark:border-red-400`} hover:shadow-lg transition-all duration-300 animate-in slide-in-from-left ${note.completed ? 'opacity-95' : ''}`}>
             <div className="p-4">
                 <div className="flex items-start gap-3">
                     {/* Status Icon */}
                     {note.status && (
                         <div className="flex-shrink-0 mt-0.5">
-                            <div className={`w-8 h-8 rounded-full ${getStatusConfig(note.status).color} flex items-center justify-center text-white shadow-md`}>
-                                <span className="text-sm">{getStatusConfig(note.status).icon}</span>
+                            <div className={`w-8 h-8 rounded-full ${note.completed ? 'bg-green-500' : getStatusConfig(note.status).color} flex items-center justify-center text-white shadow-md`}>
+                                <span className="text-sm">{note.completed ? '✅' : getStatusConfig(note.status).icon}</span>
                             </div>
                         </div>
                     )}
 
                     {/* Content - Expanded to take more space */}
                     <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
+                        <div className={`text-sm font-medium mb-2 break-words ${note.completed ? 'text-green-800 dark:text-green-200' : 'text-slate-900 dark:text-white'}`}>
                             <RichNoteDisplay
                                 content={note.text}
                                 className="rich-note-content"
@@ -118,7 +118,7 @@ export default function ModernNoteCard({
                         </div>
 
                         {/* Status Badge */}
-                        {note.status && (
+                        {note.status && !note.completed && (
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
                                 <span className={`px-2 py-1 rounded-full ${getStatusConfig(note.status).color} text-white text-xs font-medium shadow-sm`}>
                                     {getStatusConfig(note.status).label}
@@ -126,8 +126,17 @@ export default function ModernNoteCard({
                             </div>
                         )}
 
+                        {/* Completed Status Badge */}
+                        {note.completed && (
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                <span className="px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium shadow-sm">
+                                    ✅ Đã hoàn thành
+                                </span>
+                            </div>
+                        )}
+
                         {/* Progress Bar */}
-                        {note.progress !== undefined && note.progress > 0 && (
+                        {note.progress !== undefined && note.progress > 0 && !note.completed && (
                             <div className="mb-2">
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Tiến độ</span>
@@ -138,6 +147,19 @@ export default function ModernNoteCard({
                                         className={`h-full ${colors.badge} transition-all duration-500 rounded-full`}
                                         style={{ width: `${note.progress}%` }}
                                     />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Completed Progress Bar */}
+                        {note.completed && (
+                            <div className="mb-2">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs font-medium text-green-600 dark:text-green-400">Tiến độ</span>
+                                    <span className="text-xs font-bold text-green-700 dark:text-green-300">100%</span>
+                                </div>
+                                <div className="w-full h-2 bg-green-200 dark:bg-green-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-green-500 transition-all duration-500 rounded-full w-full" />
                                 </div>
                             </div>
                         )}
@@ -173,8 +195,8 @@ export default function ModernNoteCard({
                             </button>
                         </div>
 
-                        {/* Quick Status Change - Bottom */}
-                        {onUpdateStatus && (
+                        {/* Quick Status Change - Bottom - Only show when not completed */}
+                        {onUpdateStatus && !note.completed && (
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {Object.entries(getStatusOptions()).slice(0, 3).map(([key, config]) => (
                                     <button
@@ -192,14 +214,24 @@ export default function ModernNoteCard({
                 </div>
             </div>
 
-            {/* Completed Badge - Top right corner */}
-            {note.completed && (
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full shadow-lg">
-                        ✓ Hoàn thành
+            {/* Status Badge - Always visible at top right corner */}
+            <div className="absolute top-2 right-2">
+                {note.completed ? (
+                    <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Hoàn thành
                     </span>
-                </div>
-            )}
+                ) : (
+                    <span className="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        Chưa Làm
+                    </span>
+                )}
+            </div>
         </Card>
     )
 }

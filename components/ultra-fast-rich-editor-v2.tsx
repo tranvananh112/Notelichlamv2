@@ -97,11 +97,16 @@ export default function UltraFastRichEditorV2({
         }
     }, [checkActiveStates])
 
-    // Initialize editor - optimized
+    // Initialize editor - optimized with proper HTML content handling
     useEffect(() => {
-        if (editorRef.current && !isReady) {
-            editorRef.current.innerHTML = value || ""
-            setIsReady(true)
+        if (editorRef.current && value !== undefined) {
+            // Only update if content is different to avoid cursor jumping
+            if (editorRef.current.innerHTML !== value) {
+                editorRef.current.innerHTML = value || ""
+            }
+            if (!isReady) {
+                setIsReady(true)
+            }
         }
     }, [value, isReady])
 

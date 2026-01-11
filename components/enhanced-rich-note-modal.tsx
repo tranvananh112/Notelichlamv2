@@ -17,6 +17,7 @@ interface EnhancedRichNoteModalProps {
         tags?: string[]
         category?: string
     }
+    isEditing?: boolean
 }
 
 const CATEGORIES = [
@@ -51,7 +52,8 @@ const PRIORITIES = [
 export default function EnhancedRichNoteModal({
     onAddNote,
     onClose,
-    initialData
+    initialData,
+    isEditing = false
 }: EnhancedRichNoteModalProps) {
     const [noteContent, setNoteContent] = useState(initialData?.text || "")
     const [selectedColor, setSelectedColor] = useState(initialData?.color || "blue")
@@ -98,7 +100,7 @@ export default function EnhancedRichNoteModal({
                                 {initialData ? "Chỉnh sửa ghi chú" : "Tạo ghi chú mới"}
                             </h2>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Sử dụng công cụ định dạng để tạo ghi chú đẹp mắt
+                                {initialData ? "Cập nhật nội dung với công cụ định dạng" : "Sử dụng công cụ định dạng để tạo ghi chú đẹp mắt"}
                             </p>
                         </div>
                     </div>
@@ -138,7 +140,7 @@ export default function EnhancedRichNoteModal({
                             <UltraFastRichEditorV2
                                 value={noteContent}
                                 onChange={setNoteContent}
-                                placeholder="Bắt đầu viết ghi chú của bạn... Sử dụng thanh công cụ để định dạng văn bản."
+                                placeholder={initialData ? "Chỉnh sửa nội dung ghi chú..." : "Bắt đầu viết ghi chú của bạn... Sử dụng thanh công cụ để định dạng văn bản."}
                                 minHeight={300}
                             />
                         </div>

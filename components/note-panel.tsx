@@ -75,6 +75,7 @@ export default function NotePanel({
     priority: "medium",
     status: "planning"
   })
+  const [editingRichNote, setEditingRichNote] = useState<Note | null>(null)
 
   const filteredNotes = dayNotes.filter((note) => {
     if (activeTab === "all") return true
@@ -127,8 +128,21 @@ export default function NotePanel({
   }
 
   const handleEditNote = (note: Note) => {
-    setEditingNoteId(note.id)
-    setEditValues({ text: note.text, progress: note.progress || 0, status: note.status || "planning" })
+    // Check if note contains rich text (HTML tags or formatted content)
+    const hasRichText = note.text.includes('<') && note.text.includes('>') &&
+      (note.text.includes('<b') || note.text.includes('<i') ||
+        note.text.includes('<u') || note.text.includes('<font') ||
+        note.text.includes('<span') || note.text.includes('<div') ||
+        note.text.includes('style='))
+
+    if (hasRichText) {
+      // Open Rich Text Editor for rich notes
+      setEditingRichNote(note)
+    } else {
+      // Open simple editor for plain text notes
+      setEditingNoteId(note.id)
+      setEditValues({ text: note.text, progress: note.progress || 0, status: note.status || "planning" })
+    }
   }
 
   const handleSaveEdit = (noteId: string) => {
@@ -785,6 +799,31 @@ export default function NotePanel({
             setShowRichNoteModal(false)
           }}
           onClose={() => setShowRichNoteModal(false)}
+        />
+      )}
+
+      {/* Rich Text Edit Modal */}
+      {editingRichNote && (
+        <EnhancedRichNoteModal
+          isEditing={true}
+          initialData={{
+            text: editingRichNote.text,
+            color: editingRichNote.color || "blue",
+            progress: editingRichNote.progress || 0,
+            priority: "medium", // Default priority for existing notes
+            tags: [], // Default empty tags
+            category: "work" // Default category
+          }}
+          onAddNote={(text, color, progress, priority, tags, category) => {
+            onUpdateNote(editingRichNote.id, {
+              text,
+              color,
+              progress,
+              status: editingRichNote.status || "planning"
+            })
+            setEditingRichNote(null)
+          }}
+          onClose={() => setEditingRichNote(null)}
         />
       )}
 
