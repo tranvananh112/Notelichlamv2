@@ -11,6 +11,7 @@ interface CalendarViewProps {
   getNoteCount: (date: Date) => number
   getHasAttendance: (date: Date) => boolean
   getAttendanceInfo: (date: Date) => { type: string; icon: string } | null
+  getFutureTasksCount: (date: Date) => number
 }
 
 export default function CalendarView({
@@ -19,6 +20,7 @@ export default function CalendarView({
   getNoteCount,
   getHasAttendance,
   getAttendanceInfo,
+  getFutureTasksCount,
 }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
@@ -145,6 +147,7 @@ export default function CalendarView({
           const noteCount = getNoteCount(currentDate)
           const hasAttendance = getHasAttendance(currentDate)
           const attendanceInfo = getAttendanceInfo(currentDate)
+          const futureTasksCount = getFutureTasksCount(currentDate)
           const selected = isSelected(day)
           const today = isToday(day)
           const weekend = isWeekend(day)
@@ -218,14 +221,27 @@ export default function CalendarView({
                 </div>
               )}
 
-              {/* Hiển thị số ghi chú */}
-              {noteCount > 0 && (
-                <div className={`absolute bottom-2 left-2 text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
-                  {noteCount - (hasAttendance ? 1 : 0) > 0 && (
-                    <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
-                  )}
-                </div>
-              )}
+              {/* Hiển thị số ghi chú và nhiệm vụ dự kiến */}
+              <div className="absolute bottom-2 left-2 flex flex-col gap-1">
+                {noteCount > 0 && (
+                  <div className={`text-xs ${selected || hasAttendance ? "text-white/90" : "text-purple-600 dark:text-purple-400"}`}>
+                    {noteCount - (hasAttendance ? 1 : 0) > 0 && (
+                      <span className="text-[10px] font-semibold">{noteCount - (hasAttendance ? 1 : 0)} ghi chú</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Hiển thị số nhiệm vụ dự kiến chưa hoàn thành */}
+                {futureTasksCount > 0 && (
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${selected || hasAttendance
+                      ? "bg-white/20 text-white"
+                      : "bg-amber-500 text-white"
+                    } shadow-sm`}>
+                    <span>📋</span>
+                    <span>{futureTasksCount}</span>
+                  </div>
+                )}
+              </div>
             </button>
           )
         })}

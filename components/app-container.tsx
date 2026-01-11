@@ -69,9 +69,57 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     color?: string
     priority?: string
     status?: string
+    completed?: boolean
     created_at: string
   }>>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [allFutureTasks, setAllFutureTasks] = useState<Record<string, Array<{
+    id: string
+    text: string
+    color?: string
+    priority?: string
+    status?: string
+    completed?: boolean
+    created_at: string
+  }>>>({}) // Store all future tasks by date
+
+  // Load all future tasks for calendar display
+  useEffect(() => {
+    const loadAllFutureTasks = async () => {
+      try {
+        const { data: allTasksData, error } = await supabase
+          .from("future_tasks")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: true })
+
+        if (error) {
+          console.error("Error loading all future tasks:", error)
+        } else {
+          // Group tasks by date
+          const tasksByDate = allTasksData?.reduce((acc, task) => {
+            const dateKey = task.date
+            if (!acc[dateKey]) acc[dateKey] = []
+            acc[dateKey].push({
+              id: task.id,
+              text: task.text,
+              color: task.color,
+              priority: task.priority,
+              status: task.status,
+              completed: task.completed || false,
+              created_at: task.created_at
+            })
+            return acc
+          }, {} as typeof allFutureTasks) || {}
+
+          setAllFutureTasks(tasksByDate)
+        }
+      } catch (error) {
+        console.error("Error loading all future tasks:", error)
+      }
+    }
+
+    loadAllFutureTasks()
+  }, [user.id])
 
   // Update current time every second
   useEffect(() => {
@@ -111,10 +159,17 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             color: task.color,
             priority: task.priority,
             status: task.status,
+            completed: task.completed || false,
             created_at: task.created_at,
             tags: task.tags || []
           })) || []
           setFutureTasks(tasks)
+
+          // Update allFutureTasks as well
+          setAllFutureTasks(prev => ({
+            ...prev,
+            [dateKey]: tasks
+          }))
         }
       } catch (error) {
         console.error("Error loading future tasks:", error)
@@ -294,6 +349,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           color: data.color,
           priority: data.priority,
           status: data.status,
+          completed: data.completed || false,
           created_at: data.created_at,
           tags: data.tags || []
         }
@@ -301,6 +357,12 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         const updatedTasks = [...futureTasks, newTask]
         setFutureTasks(updatedTasks)
         backupFutureTasksToStorage(updatedTasks)
+
+        // Update allFutureTasks as well
+        setAllFutureTasks(prev => ({
+          ...prev,
+          [dateKey]: updatedTasks
+        }))
       },
       () => {
         // Fallback to localStorage
@@ -310,12 +372,19 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           color,
           priority,
           status: "planning",
+          completed: false,
           created_at: new Date().toISOString(),
           tags
         }
         const updatedTasks = [...futureTasks, newTask]
         setFutureTasks(updatedTasks)
         backupFutureTasksToStorage(updatedTasks)
+
+        // Update allFutureTasks as well
+        setAllFutureTasks(prev => ({
+          ...prev,
+          [dateKey]: updatedTasks
+        }))
       }
     )
   }
@@ -333,13 +402,22 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         const updatedTasks = futureTasks.filter((task) => task.id !== taskId)
         setFutureTasks(updatedTasks)
         backupFutureTasksToStorage(updatedTasks)
+
+        // Update allFutureTasks as well
+        if (selectedDate) {
+          const dateKey = selectedDate.toISOString().split("T")[0]
+          setAllFutureTasks(prev => ({
+            ...prev,
+            [dateKey]: updatedTasks
+          }))
+        }
       }
     )
   }
 
   const updateFutureTask = async (
     taskId: string,
-    updates: Partial<{ text: string; color: string; priority: string; status: string; tags: string[] }>
+    updates: Partial<{ text: string; color: string; priority: string; status: string; completed: boolean; tags: string[] }>
   ) => {
     await syncData(
       async () => {
@@ -355,6 +433,15 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
         )
         setFutureTasks(updatedTasks)
         backupFutureTasksToStorage(updatedTasks)
+
+        // Update allFutureTasks as well
+        if (selectedDate) {
+          const dateKey = selectedDate.toISOString().split("T")[0]
+          setAllFutureTasks(prev => ({
+            ...prev,
+            [dateKey]: updatedTasks
+          }))
+        }
       }
     )
   }
@@ -382,6 +469,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const getNoteCount = (date: Date): number => {
     const key = date.toISOString().split("T")[0]
     return notes[key]?.length || 0
+  }
+
+  const getFutureTasksCount = (date: Date): number => {
+    const key = date.toISOString().split("T")[0]
+    const tasks = allFutureTasks[key] || []
+    // Chỉ đếm những nhiệm vụ chưa hoàn thành
+    return tasks.filter(task => !task.completed).length
   }
 
   const getHasAttendance = (date: Date): boolean => {
@@ -492,6 +586,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             getNoteCount={getNoteCount}
             getHasAttendance={getHasAttendance}
             getAttendanceInfo={getAttendanceInfo}
+            getFutureTasksCount={getFutureTasksCount}
           />
         </Card>
 

@@ -9,7 +9,7 @@ import EnhancedRichNoteModal from "@/components/enhanced-rich-note-modal"
 import NoteTemplates from "@/components/note-templates"
 import AttendanceModal from "@/components/attendance-modal"
 import ModernNoteCard from "@/components/modern-note-card"
-import RichNoteCard from "@/components/rich-note-card"
+import TaskToggleSwitch from "@/components/task-toggle-switch"
 
 interface Note {
   id: string
@@ -39,11 +39,12 @@ interface NotePanelProps {
     color?: string
     priority?: string
     status?: string
+    completed?: boolean
     created_at: string
   }>
   onAddFutureTask: (text: string, color: string, priority: string) => void
   onDeleteFutureTask: (taskId: string) => void
-  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string; status: string }>) => void
+  onUpdateFutureTask: (taskId: string, updates: Partial<{ text: string; color: string; priority: string; status: string; completed: boolean }>) => void
 }
 
 export default function NotePanel({
@@ -256,9 +257,9 @@ export default function NotePanel({
               }`}
           >
             Nhiệm vụ dự kiến
-            {futureTasks.length > 0 && (
+            {futureTasks.filter(task => !task.completed).length > 0 && (
               <span className="ml-1.5 px-1.5 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">
-                {futureTasks.length}
+                {futureTasks.filter(task => !task.completed).length}
               </span>
             )}
           </button>
@@ -311,29 +312,31 @@ export default function NotePanel({
                 const status = statusConfig[task.status as keyof typeof statusConfig] || statusConfig.planning
 
                 return (
-                  <Card key={task.id} className={`group relative overflow-hidden border-l-4 ${priority.border} ${priority.bg} hover:shadow-lg transition-all duration-300`}>
+                  <Card key={task.id} className={`group relative overflow-hidden border-l-4 ${priority.border} ${priority.bg} hover:shadow-lg transition-all duration-300 ${task.completed ? 'opacity-75' : ''}`}>
                     <div className="p-4">
                       <div className="flex items-start gap-3">
                         {/* Status Icon */}
                         <div className="flex-shrink-0 mt-0.5">
-                          <div className={`w-8 h-8 rounded-full ${status.color} flex items-center justify-center text-white shadow-md`}>
-                            <span className="text-sm">{status.icon}</span>
+                          <div className={`w-8 h-8 rounded-full ${task.completed ? 'bg-green-500' : status.color} flex items-center justify-center text-white shadow-md`}>
+                            <span className="text-sm">{task.completed ? '✅' : status.icon}</span>
                           </div>
                         </div>
 
                         <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                          <p className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
+                          <p className={`text-sm font-medium mb-2 break-words ${task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
                             {task.text}
                           </p>
 
-                          {/* Status và Priority badges */}
+                          {/* Priority badge */}
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className={`px-2 py-1 rounded-full ${status.color} text-white text-xs font-medium shadow-sm`}>
-                              {status.label}
-                            </span>
                             <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
                               {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
                             </span>
+                            {task.completed && (
+                              <span className="px-2 py-0.5 rounded-full bg-green-500 text-white text-xs font-medium">
+                                Đã hoàn thành
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -344,8 +347,15 @@ export default function NotePanel({
                           </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex-shrink-0 flex flex-col gap-1">
+                        {/* Toggle Switch và Actions */}
+                        <div className="flex-shrink-0 flex flex-col gap-2 items-end">
+                          {/* Toggle Switch */}
+                          <TaskToggleSwitch
+                            completed={task.completed || false}
+                            onChange={(completed) => onUpdateFutureTask(task.id, { completed })}
+                          />
+
+                          {/* Actions */}
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => {
@@ -367,20 +377,6 @@ export default function NotePanel({
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
-                          </div>
-
-                          {/* Quick Status Change */}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {Object.entries(statusConfig).map(([key, config]) => (
-                              <button
-                                key={key}
-                                onClick={() => onUpdateFutureTask(task.id, { status: key })}
-                                className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white text-xs hover:scale-110 transition-transform ${task.status === key ? 'ring-2 ring-white' : ''}`}
-                                title={config.label}
-                              >
-                                {config.icon}
-                              </button>
-                            ))}
                           </div>
                         </div>
                       </div>
