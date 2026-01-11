@@ -126,15 +126,6 @@ export default function ModernNoteCard({
                             </div>
                         )}
 
-                        {/* Completed Status Badge */}
-                        {note.completed && (
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                <span className="px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium shadow-sm">
-                                    ✅ Đã hoàn thành
-                                </span>
-                            </div>
-                        )}
-
                         {/* Progress Bar */}
                         {note.progress !== undefined && note.progress > 0 && !note.completed && (
                             <div className="mb-2">
