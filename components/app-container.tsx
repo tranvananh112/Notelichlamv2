@@ -270,6 +270,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       type,
       color: type === "attendance" ? "green" : color,
       progress,
+      completed: false, // Default to false for new notes
     }
 
     // Save to Supabase với timestamp chính xác
@@ -280,6 +281,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       type,
       color: type === "attendance" ? "green" : color,
       progress: progress || 0,
+      completed: false, // Default to false for new notes
       created_at: now.toISOString(), // Lưu thời gian UTC
       timestamp: timestamp, // Lưu timestamp hiển thị riêng
     }).select()
@@ -471,6 +473,13 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     return notes[key]?.length || 0
   }
 
+  const getIncompleteNoteCount = (date: Date): number => {
+    const key = date.toISOString().split("T")[0]
+    const dayNotes = notes[key] || []
+    // Chỉ đếm ghi chú thường (không phải attendance) và chưa hoàn thành
+    return dayNotes.filter(note => note.type === "note" && !note.completed).length
+  }
+
   const getFutureTasksCount = (date: Date): number => {
     const key = date.toISOString().split("T")[0]
     const tasks = allFutureTasks[key] || []
@@ -587,6 +596,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             getHasAttendance={getHasAttendance}
             getAttendanceInfo={getAttendanceInfo}
             getFutureTasksCount={getFutureTasksCount}
+            getIncompleteNoteCount={getIncompleteNoteCount}
           />
         </Card>
 
