@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Trash2, Clock, Edit3 } from "lucide-react"
 import RichNoteDisplay from "./rich-note-display"
-import TaskToggleSwitch from "./task-toggle-switch"
 import { Card } from "@/components/ui/card"
 
 interface ModernNoteCardProps {
@@ -164,13 +163,7 @@ export default function ModernNoteCard({
 
                     {/* Right Side Actions */}
                     <div className="flex-shrink-0 flex flex-col gap-2 items-end">
-                        {/* Toggle Switch - Positioned at top right */}
-                        <TaskToggleSwitch
-                            completed={note.completed || false}
-                            onChange={onToggleComplete}
-                        />
-
-                        {/* Actions - Below toggle switch */}
+                        {/* Actions - Edit and Delete buttons */}
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={onEdit}
@@ -186,7 +179,7 @@ export default function ModernNoteCard({
                             </button>
                         </div>
 
-                        {/* Quick Status Change - Bottom - Only show when not completed */}
+                        {/* Quick Status Change - Only show when not completed */}
                         {onUpdateStatus && !note.completed && (
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {Object.entries(getStatusOptions()).slice(0, 3).map(([key, config]) => (
@@ -205,24 +198,27 @@ export default function ModernNoteCard({
                 </div>
             </div>
 
-            {/* Status Badge - Always visible at top right corner */}
-            <div className="absolute top-2 right-2">
+            {/* Status Badge - Clickable at top right corner */}
+            <button
+                onClick={onToggleComplete}
+                className="absolute top-2 right-2 transition-transform hover:scale-105 active:scale-95"
+            >
                 {note.completed ? (
-                    <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                    <span className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse cursor-pointer">
                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         Hoàn thành
                     </span>
                 ) : (
-                    <span className="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                    <span className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1 animate-pulse cursor-pointer">
                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                         Chưa Làm
                     </span>
                 )}
-            </div>
+            </button>
         </Card>
     )
 }
