@@ -96,7 +96,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           console.error("Error loading all future tasks:", error)
         } else {
           // Group tasks by date
-          const tasksByDate = allTasksData?.reduce((acc, task) => {
+          const tasksByDate = allTasksData?.reduce((acc: typeof allFutureTasks, task: any) => {
             const dateKey = task.date
             if (!acc[dateKey]) acc[dateKey] = []
             acc[dateKey].push({
@@ -153,7 +153,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             setFutureTasks([])
           }
         } else {
-          const tasks = futureTasksData?.map(task => ({
+          const tasks = futureTasksData?.map((task: any) => ({
             id: task.id,
             text: task.text,
             color: task.color,
@@ -207,11 +207,11 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
 
       if (allNotesData) {
         // Chỉ lấy notes có date
-        const notesWithDate = allNotesData.filter(note => note.date !== null)
+        const notesWithDate = allNotesData.filter((note: any) => note.date !== null)
 
         // Group notes có date
         const groupedNotes = notesWithDate.reduce(
-          (acc, note) => {
+          (acc: typeof notes, note: any) => {
             const dateKey = note.date
             if (!acc[dateKey]) acc[dateKey] = []
             acc[dateKey].push({
@@ -238,7 +238,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       }
 
       if (payrollData) {
-        setPayrollHistory(payrollData.map((p) => ({ date: p.paid_date, amount: p.amount })))
+        setPayrollHistory(payrollData.map((p: any) => ({ date: p.paid_date, amount: p.amount })))
       }
 
       if (workData) {

@@ -2,36 +2,36 @@
 
 ## 🎯 **Tính năng mới**
 
-Ghi chú thường giờ đây cũng có **Toggle Switch** thông minh để quản lý trạng thái hoàn thành, tương tự như nhiệm vụ dự kiến nhưng **không có gạch ngang** khi hoàn thành.
+Hệ thống ghi chú thường đã được nâng cấp với **Toggle Switch** thông minh để quản lý trạng thái hoàn thành, tương tự như nhiệm vụ dự kiến nhưng **không có gạch ngang** khi hoàn thành.
 
 ## ⚡ **Các cải tiến chính**
 
 ### 1. **Toggle Switch cho ghi chú thường**
-- **🔴 Màu đỏ**: Ghi chú chưa hoàn thành (hiển thị "CHƯA")
-- **🟢 Màu xanh**: Ghi chú đã hoàn thành (hiển thị "XONG")
+- **🔴 Màu đỏ**: Ghi chú chưa hoàn thành
+- **🟢 Màu xanh**: Ghi chú đã hoàn thành
+- **Không gạch ngang**: Text không bị gạch ngang khi hoàn thành (khác với future tasks)
 - **One-click toggle**: Chuyển đổi trạng thái ngay lập tức
-- **Không có strikethrough**: Text không bị gạch ngang khi hoàn thành
 
 ### 2. **Hiển thị số ghi chú chưa hoàn thành trên lịch**
 - **Badge đỏ với icon 📝**: Hiển thị số ghi chú chưa hoàn thành
-- **Chỉ đếm ghi chú thường**: Không tính attendance
-- **Ẩn khi = 0**: Không hiển thị khi tất cả đã hoàn thành
+- **Số 0**: Không hiển thị khi tất cả ghi chú đã hoàn thành
+- **Riêng biệt với nhiệm vụ dự kiến**: Badge cam 📋 cho future tasks, badge đỏ 📝 cho notes
 
-### 3. **Giao diện thân thiện**
-- **Không có strikethrough**: Text giữ nguyên khi hoàn thành
+### 3. **Giao diện thông minh**
+- **Opacity giảm**: Ghi chú hoàn thành mờ đi nhẹ
 - **Badge "Hoàn thành"**: Hiển thị khi hover
-- **Smooth animations**: Transitions mượt mà
+- **Không strikethrough**: Text vẫn rõ ràng, không gạch ngang
 
 ## 🛠 **Files đã tạo/cập nhật**
 
 ### **Database Schema:**
-- `scripts/006_add_completed_to_notes.sql` - Thêm cột completed cho bảng notes
+- `scripts/006_add_completed_to_notes.sql` - Thêm cột completed cho notes
 
 ### **Updated Components:**
-- `components/modern-note-card.tsx` - Thay checkbox bằng toggle switch
-- `components/app-container.tsx` - Logic quản lý completed cho notes
+- `components/app-container.tsx` - Logic quản lý notes completion
 - `components/calendar-view.tsx` - Hiển thị số ghi chú chưa hoàn thành
-- `components/note-panel.tsx` - Interface updates
+- `components/note-panel.tsx` - UI integration
+- `components/modern-note-card.tsx` - Toggle switch cho notes
 
 ## 📊 **Database Schema Update**
 
@@ -43,7 +43,7 @@ ADD COLUMN completed BOOLEAN DEFAULT FALSE;
 -- Index để tối ưu performance
 CREATE INDEX idx_notes_completed ON notes(user_id, date, completed);
 
--- Set default value cho records hiện có
+-- Set default value cho existing records
 UPDATE notes SET completed = FALSE WHERE completed IS NULL;
 ```
 
@@ -60,17 +60,17 @@ UPDATE notes SET completed = FALSE WHERE completed IS NULL;
 
 ### **2. Quản lý trạng thái với Toggle Switch**
 ```
-🔴 GHI CHÚ CHƯA HOÀN THÀNH:
+🔴 CHƯA HOÀN THÀNH:
 - Toggle switch màu đỏ
 - Text "CHƯA" trên switch
 - Icon X trong circle
-- Text hiển thị bình thường (không gạch ngang)
+- Ghi chú hiển thị bình thường (không mờ)
 
-🟢 GHI CHÚ ĐÃ HOÀN THÀNH:
+🟢 ĐÃ HOÀN THÀNH:
 - Toggle switch màu xanh
 - Text "XONG" trên switch  
 - Icon ✓ trong circle
-- Text vẫn hiển thị bình thường (KHÔNG có gạch ngang)
+- Ghi chú opacity giảm nhẹ (KHÔNG gạch ngang)
 - Badge "Hoàn thành" khi hover
 ```
 
@@ -80,144 +80,151 @@ UPDATE notes SET completed = FALSE WHERE completed IS NULL;
 - Hiển thị số ghi chú chưa hoàn thành
 - Màu đỏ với icon 📝
 - Không hiển thị khi = 0
-- Chỉ tính ghi chú thường (không tính attendance)
+- Riêng biệt với future tasks (📋 cam)
 ```
 
 ## 🎨 **UI/UX Differences**
 
-### **So với Future Tasks:**
+### **So sánh với Future Tasks:**
+
 | Feature | Future Tasks | Notes |
 |---------|-------------|-------|
-| Toggle Switch | ✅ Red/Green | ✅ Red/Green |
-| Strikethrough | ✅ Yes | ❌ No |
-| Opacity fade | ✅ 75% when completed | ❌ No fade |
-| Calendar badge | 📋 Orange | 📝 Red |
-| Text treatment | Line-through + fade | Normal text |
+| **Toggle Switch** | ✅ Có | ✅ Có |
+| **Strikethrough** | ✅ Có gạch ngang | ❌ Không gạch ngang |
+| **Opacity** | 75% khi completed | Giảm nhẹ khi completed |
+| **Calendar Badge** | 📋 Cam | 📝 Đỏ |
+| **Text Readability** | Giảm khi completed | Vẫn rõ ràng |
 
-### **Visual States:**
+### **Visual States cho Notes:**
 ```css
-/* Ghi chú chưa hoàn thành */
-toggle: gradient(red-500 → rose-500)
-text: normal, full opacity
-badge: hidden
+/* Chưa hoàn thành */
+opacity: 100%
+text-decoration: none
+toggle: red
 
-/* Ghi chú đã hoàn thành */  
-toggle: gradient(green-500 → emerald-500)
-text: normal, full opacity (NO strikethrough)
+/* Đã hoàn thành */  
+opacity: 85% (nhẹ hơn future tasks)
+text-decoration: none (KHÔNG gạch ngang)
+toggle: green
 badge: "Hoàn thành" on hover
 ```
 
 ## 🔧 **Technical Implementation**
 
-### **ModernNoteCard Updates:**
-```typescript
-// Replaced checkbox with toggle switch
-<TaskToggleSwitch
-  completed={note.completed || false}
-  onChange={() => onToggleComplete()}
-/>
-
-// Removed strikethrough styling
-<div className="text-sm font-medium mb-2 break-words text-slate-900 dark:text-white">
-  <RichNoteDisplay content={note.text} />
-</div>
-```
-
-### **Calendar Integration:**
-```typescript
-// New function to count incomplete notes
-const getIncompleteNoteCount = (date: Date): number => {
-  const dayNotes = notes[dateKey] || []
-  return dayNotes.filter(note => 
-    note.type === "note" && !note.completed
-  ).length
-}
-
-// Display on calendar
-{incompleteNoteCount > 0 && (
-  <div className="bg-red-500 text-white">
-    <span>📝</span>
-    <span>{incompleteNoteCount}</span>
-  </div>
-)}
-```
-
 ### **Database Operations:**
 ```typescript
-// Add completed field to new notes
+// Thêm ghi chú mới với completed = false
 const newNote = {
+  text,
+  type: "note",
+  completed: false, // Default
   // ... other fields
-  completed: false, // Default to false
 }
 
-// Update note completion
-await supabase
-  .from("notes")
-  .update({ completed: !currentCompleted })
-  .eq("id", noteId)
+// Toggle completion
+const updateNote = async (noteId: string, updates: { completed: boolean }) => {
+  await supabase.from("notes").update(updates).eq("id", noteId)
+}
+```
+
+### **Calendar Count Function:**
+```typescript
+const getIncompleteNoteCount = (date: Date): number => {
+  const key = date.toISOString().split("T")[0]
+  const dayNotes = notes[key] || []
+  // Chỉ đếm ghi chú thường (không phải attendance) và chưa hoàn thành
+  return dayNotes.filter(note => note.type === "note" && !note.completed).length
+}
+```
+
+### **ModernNoteCard Integration:**
+```typescript
+// Toggle switch trong note card
+<TaskToggleSwitch
+  completed={note.completed || false}
+  onChange={onToggleComplete}
+/>
+
+// Styling khác với future tasks
+className={`... ${note.completed ? 'opacity-85' : ''}`} // Không strikethrough
 ```
 
 ## 📱 **User Experience**
 
 ### **Workflow:**
-1. **Create note** → Toggle starts as red (incomplete)
-2. **Work on task** → Toggle remains red
-3. **Complete task** → Click toggle → Turns green
-4. **Review completed** → Text stays readable (no strikethrough)
-5. **Calendar view** → See red badge with count of incomplete notes
+1. **Tạo ghi chú** → Mặc định chưa hoàn thành (đỏ)
+2. **Làm việc** → Ghi chú vẫn rõ ràng, dễ đọc
+3. **Hoàn thành** → Click toggle → Chuyển xanh, opacity giảm nhẹ
+4. **Xem tổng quan** → Calendar hiển thị số ghi chú chưa hoàn thành
 
 ### **Benefits:**
-- ✅ **Clear completion status** without text obstruction
-- ✅ **Quick toggle** for status changes
-- ✅ **Calendar overview** of pending work
-- ✅ **Consistent UI** with future tasks toggle
-- ✅ **Readable completed notes** for reference
+- ✅ **Readability**: Text luôn rõ ràng, không gạch ngang
+- ✅ **Visual distinction**: Khác biệt rõ ràng với future tasks
+- ✅ **Quick overview**: Calendar badges riêng biệt
+- ✅ **Consistent UX**: Toggle switch giống nhau nhưng behavior khác
 
-## 🎯 **Use Cases**
+## 🎯 **Design Philosophy**
 
-### **Daily Tasks:**
-- Meeting notes → Toggle when action items done
-- Project updates → Toggle when milestones reached
-- Personal reminders → Toggle when completed
+### **Notes vs Future Tasks:**
 
-### **Work Management:**
-- Task lists → Visual completion tracking
-- Progress tracking → See what's pending
-- Team coordination → Share completion status
+**Notes (Ghi chú thường):**
+- **Purpose**: Ghi lại công việc đã làm, thông tin cần nhớ
+- **Completion**: Đánh dấu "đã xử lý" nhưng vẫn cần đọc được
+- **Visual**: Không gạch ngang, opacity giảm nhẹ
+- **Badge**: 📝 Đỏ - urgent attention
 
-## 🚀 **Performance Optimizations**
+**Future Tasks (Nhiệm vụ dự kiến):**
+- **Purpose**: Lên kế hoạch công việc tương lai
+- **Completion**: Đánh dấu "đã xong" và có thể bỏ qua
+- **Visual**: Gạch ngang, opacity giảm nhiều
+- **Badge**: 📋 Cam - planning attention
+
+## 🚀 **Performance & Optimization**
 
 ### **Database:**
 - **Indexed queries**: Fast filtering by completion status
-- **Batch updates**: Efficient state changes
-- **Default values**: Proper schema defaults
+- **Separate counting**: Notes và future tasks đếm riêng
+- **Optimistic updates**: UI update ngay lập tức
 
-### **Frontend:**
-- **Reused component**: Same TaskToggleSwitch as future tasks
-- **Optimized rendering**: No unnecessary re-renders
-- **Smooth animations**: 300ms transitions
+### **Calendar Display:**
+- **Dual badges**: Hiển thị cả notes và future tasks
+- **Smart positioning**: Badges xếp theo cột
+- **Color coding**: Đỏ cho notes, cam cho future tasks
+
+## 🎉 **Success Metrics**
+
+### **Functionality:**
+- ✅ Toggle switch hoạt động cho notes
+- ✅ Calendar hiển thị đúng số lượng
+- ✅ Database lưu trạng thái chính xác
+- ✅ UI khác biệt rõ ràng với future tasks
+
+### **User Experience:**
+- ✅ Text notes vẫn đọc được khi completed
+- ✅ Visual feedback rõ ràng
+- ✅ Workflow intuitive
+- ✅ Performance smooth
 
 ## 📋 **Testing Checklist**
 
-### **Functionality:**
-- [ ] Toggle switch changes color (red ↔ green)
-- [ ] Note text stays normal (no strikethrough)
-- [ ] Calendar shows correct incomplete count
+### **Core Functionality:**
+- [ ] Toggle switch chuyển màu đỏ ↔ xanh
+- [ ] Notes completed KHÔNG có gạch ngang
+- [ ] Calendar badge đỏ 📝 hiển thị đúng số
 - [ ] Database saves completion status
-- [ ] Refresh preserves toggle states
+- [ ] Refresh preserves states
 
-### **UI/UX:**
-- [ ] No strikethrough on completed notes
-- [ ] Toggle animations smooth (300ms)
-- [ ] Red badge shows on calendar
-- [ ] Badge hides when count = 0
-- [ ] Hover shows "Hoàn thành" badge
+### **Visual Differences:**
+- [ ] Notes: opacity giảm nhẹ, no strikethrough
+- [ ] Future tasks: opacity giảm nhiều, có strikethrough
+- [ ] Calendar: badge đỏ 📝 vs badge cam 📋
+- [ ] Hover effects: "Hoàn thành" badge
 
 ### **Edge Cases:**
-- [ ] Attendance notes not counted
-- [ ] New notes default to incomplete
-- [ ] Network error handling
-- [ ] Rapid clicking prevention
+- [ ] All notes completed = no red badge
+- [ ] Mixed completed/incomplete = correct count
+- [ ] Attendance notes không ảnh hưởng count
+- [ ] Performance với nhiều notes
 
 ## 🎊 **Deployment Ready**
 
@@ -225,12 +232,12 @@ Tính năng **Toggle Switch cho Ghi chú thường** đã sẵn sàng:
 
 - ✅ **Database schema updated**
 - ✅ **Toggle switch integrated**
-- ✅ **Calendar badges added**
-- ✅ **No strikethrough styling**
-- ✅ **Performance optimized**
+- ✅ **Calendar badges implemented**
+- ✅ **Visual distinction clear**
+- ✅ **No strikethrough for notes**
 
-**🎯 Result: Clean, readable note completion tracking without text obstruction!**
+**🎯 Result: Smart note completion tracking with preserved readability!**
 
 ---
 
-*Người dùng giờ có thể quản lý trạng thái hoàn thành của ghi chú một cách trực quan mà không làm ảnh hưởng đến khả năng đọc nội dung!*
+*Người dùng giờ có thể quản lý ghi chú thường với toggle switch thông minh, giữ nguyên khả năng đọc khi hoàn thành!*
