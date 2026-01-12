@@ -78,14 +78,22 @@ export default function NotePanel({
   const [editingRichNote, setEditingRichNote] = useState<Note | null>(null)
 
   const filteredNotes = dayNotes.filter((note) => {
-    if (activeTab === "all") return true
+    if (activeTab === "all") return note.type === "note" // Chỉ hiển thị notes, không hiển thị attendance
     if (activeTab === "notes") return note.type === "note"
     if (activeTab === "attendance") return note.type === "attendance"
     if (activeTab === "future") return false // Future tasks không hiển thị ở đây
     return true
   })
 
-  const displayContent = activeTab === "future" ? futureTasks : filteredNotes
+  // Sắp xếp theo thời gian tạo (mới nhất cuối, cũ nhất đầu)
+  const sortedFilteredNotes = [...filteredNotes].sort((a, b) => {
+    // Sử dụng timestamp hoặc id để sắp xếp
+    const timeA = a.timestamp || a.id
+    const timeB = b.timestamp || b.id
+    return timeA.localeCompare(timeB)
+  })
+
+  const displayContent = activeTab === "future" ? futureTasks : sortedFilteredNotes
 
   const hasAttendance = dayNotes.some((note) => note.type === "attendance")
 
