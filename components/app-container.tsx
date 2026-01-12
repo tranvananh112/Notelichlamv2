@@ -27,7 +27,7 @@ import router from "next/router"
 
 interface User {
   id: string
-  email: string
+  email: string | undefined
 }
 
 export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: boolean }) {

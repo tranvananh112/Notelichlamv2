@@ -78,7 +78,7 @@ export default function NotePanel({
   const [editingRichNote, setEditingRichNote] = useState<Note | null>(null)
 
   const filteredNotes = dayNotes.filter((note) => {
-    if (activeTab === "all") return note.type === "note" // CHỈ hiển thị ghi chú thường, KHÔNG hiển thị điểm danh
+    if (activeTab === "all") return true // HIỂN THỊ TẤT CẢ để đảm bảo không mất dữ liệu
     if (activeTab === "notes") return note.type === "note"
     if (activeTab === "attendance") return note.type === "attendance"
     if (activeTab === "future") return false // Future tasks không hiển thị ở đây
