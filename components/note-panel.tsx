@@ -10,6 +10,7 @@ import NoteTemplates from "@/components/note-templates"
 import AttendanceModal from "@/components/attendance-modal"
 import ModernNoteCard from "@/components/modern-note-card"
 import TaskToggleSwitch from "@/components/task-toggle-switch"
+import RichNoteDisplay from "@/components/rich-note-display"
 
 interface Note {
   id: string
@@ -364,9 +365,12 @@ export default function NotePanel({
                         </div>
 
                         <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                          <p className={`text-sm font-medium mb-2 break-words ${task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
-                            {task.text}
-                          </p>
+                          <div className={`text-sm font-medium mb-2 break-words ${task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
+                            <RichNoteDisplay
+                              content={task.text}
+                              className="rich-note-content"
+                            />
+                          </div>
 
                           {/* Priority badge */}
                           <div className="flex items-center gap-2 mb-2 flex-wrap">

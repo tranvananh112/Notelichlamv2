@@ -18,6 +18,7 @@ import {
     Share2,
     MoreHorizontal
 } from "lucide-react"
+import RichNoteDisplay from "./rich-note-display"
 
 interface RichNote {
     id: string
@@ -195,14 +196,15 @@ const RichNoteCard = memo(({
                     {/* Content */}
                     <div className="mb-3">
                         {isExpanded || !shouldTruncate ? (
-                            <div
+                            <RichNoteDisplay
+                                content={note.text}
                                 className="prose prose-sm max-w-none dark:prose-invert text-slate-900 dark:text-white"
-                                dangerouslySetInnerHTML={{ __html: note.text }}
                             />
                         ) : (
-                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                                {displayContent}
-                            </p>
+                            <RichNoteDisplay
+                                content={displayContent}
+                                className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed"
+                            />
                         )}
 
                         {shouldTruncate && (
@@ -274,7 +276,7 @@ const RichNoteCard = memo(({
                             <Copy className="w-4 h-4" />
                         </button>
 
-                        {navigator.share && (
+                        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
                             <button
                                 onClick={handleShare}
                                 className="p-1.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg text-green-500 transition-colors"

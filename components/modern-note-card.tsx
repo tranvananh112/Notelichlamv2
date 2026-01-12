@@ -73,9 +73,12 @@ export default function ModernNoteCard({
 
                         {/* Content */}
                         <div className="flex-1 min-w-0 overflow-hidden">
-                            <h4 className="font-semibold text-green-700 dark:text-green-300 text-base mb-1 break-words">
-                                {note.text}
-                            </h4>
+                            <div className="font-semibold text-green-700 dark:text-green-300 text-base mb-1 break-words">
+                                <RichNoteDisplay
+                                    content={note.text}
+                                    className="rich-note-content"
+                                />
+                            </div>
                             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                                 <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                                 <span className="truncate">{note.timestamp}</span>
