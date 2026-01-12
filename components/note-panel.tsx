@@ -78,19 +78,33 @@ export default function NotePanel({
   const [editingRichNote, setEditingRichNote] = useState<Note | null>(null)
 
   const filteredNotes = dayNotes.filter((note) => {
-    if (activeTab === "all") return note.type === "note" // Chỉ hiển thị notes, không hiển thị attendance
+    if (activeTab === "all") return note.type === "note" // CHỈ hiển thị ghi chú thường, KHÔNG hiển thị điểm danh
     if (activeTab === "notes") return note.type === "note"
     if (activeTab === "attendance") return note.type === "attendance"
     if (activeTab === "future") return false // Future tasks không hiển thị ở đây
     return true
   })
 
-  // Sắp xếp theo thời gian tạo (mới nhất cuối, cũ nhất đầu)
+  // Sắp xếp theo thời gian tạo (cũ nhất trước, mới nhất sau) - theo timestamp thực tế
   const sortedFilteredNotes = [...filteredNotes].sort((a, b) => {
-    // Sử dụng timestamp hoặc id để sắp xếp
-    const timeA = a.timestamp || a.id
-    const timeB = b.timestamp || b.id
-    return timeA.localeCompare(timeB)
+    // Chuyển timestamp thành số để so sánh chính xác
+    const parseTime = (timestamp: string) => {
+      if (!timestamp) return 0
+
+      // Nếu timestamp có format HH:MM:SS
+      if (timestamp.includes(':')) {
+        const [hours, minutes, seconds] = timestamp.split(':').map(Number)
+        return hours * 3600 + minutes * 60 + (seconds || 0)
+      }
+
+      // Fallback: sử dụng string comparison
+      return parseInt(timestamp) || 0
+    }
+
+    const timeA = parseTime(a.timestamp || a.id)
+    const timeB = parseTime(b.timestamp || b.id)
+
+    return timeA - timeB // Cũ nhất trước (7h sáng trước 8h sáng)
   })
 
   const displayContent = activeTab === "future" ? futureTasks : sortedFilteredNotes
