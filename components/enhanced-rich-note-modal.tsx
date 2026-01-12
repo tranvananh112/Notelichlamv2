@@ -18,6 +18,7 @@ interface EnhancedRichNoteModalProps {
         category?: string
     }
     isEditing?: boolean
+    title?: string
 }
 
 const CATEGORIES = [
@@ -53,7 +54,8 @@ export default function EnhancedRichNoteModal({
     onAddNote,
     onClose,
     initialData,
-    isEditing = false
+    isEditing = false,
+    title
 }: EnhancedRichNoteModalProps) {
     const [noteContent, setNoteContent] = useState(initialData?.text || "")
     const [selectedColor, setSelectedColor] = useState(initialData?.color || "blue")
@@ -97,7 +99,7 @@ export default function EnhancedRichNoteModal({
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                                {initialData ? "Chỉnh sửa ghi chú" : "Tạo ghi chú mới"}
+                                {title || (initialData ? "Chỉnh sửa ghi chú" : "Tạo ghi chú mới")}
                             </h2>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 {initialData ? "Cập nhật nội dung với công cụ định dạng" : "Sử dụng công cụ định dạng để tạo ghi chú đẹp mắt"}

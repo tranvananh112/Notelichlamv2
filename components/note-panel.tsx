@@ -469,7 +469,7 @@ export default function NotePanel({
           </Button>
         ) : (
           <div className="space-y-2">
-            {/* Rich Text Editor Button */}
+            {/* Rich Text Editor Button - MẶC ĐỊNH */}
             <Button
               onClick={() => setShowRichNoteModal(true)}
               className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg py-3 flex items-center justify-center gap-2 shadow-lg"
@@ -477,7 +477,7 @@ export default function NotePanel({
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              Tạo ghi chú Rich Text
+              Tạo ghi chú
             </Button>
 
             {/* Template Button */}
@@ -490,16 +490,6 @@ export default function NotePanel({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Chọn Template
-            </Button>
-
-            {/* Simple Note Button */}
-            <Button
-              onClick={() => setShowNoteModal(true)}
-              variant="outline"
-              className="w-full border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg py-2 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Ghi chú đơn giản
             </Button>
           </div>
         )}
@@ -631,192 +621,50 @@ export default function NotePanel({
         </div>
       )}
 
-      {/* Modal thêm nhiệm vụ dự kiến */}
+      {/* Modal thêm nhiệm vụ dự kiến - SỬ DỤNG RICH TEXT */}
       {showFutureTaskModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Thêm nhiệm vụ dự kiến</h3>
-            <textarea
-              value={futureTaskValues.text}
-              onChange={(e) => setFutureTaskValues({ ...futureTaskValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
-              placeholder="Nhập ý tưởng công việc cho tương lai..."
-            />
-
-            {/* Trạng thái */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Trạng thái
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
-                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
-                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
-                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
-                      ? `${s.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    <span>{s.icon}</span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Mức độ ưu tiên */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Mức độ ưu tiên
-              </label>
-              <div className="flex gap-2">
-                {[
-                  { value: "low", label: "Thấp", color: "bg-blue-500" },
-                  { value: "medium", label: "Trung bình", color: "bg-yellow-500" },
-                  { value: "high", label: "Cao", color: "bg-red-500" },
-                ].map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                      ? `${p.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button
-                onClick={() => {
-                  setShowFutureTaskModal(false)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                }}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={() => {
-                  if (futureTaskValues.text.trim()) {
-                    onAddFutureTask(futureTaskValues.text, futureTaskValues.color, futureTaskValues.priority)
-                    setShowFutureTaskModal(false)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                  }
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
-              >
-                Thêm
-              </Button>
-            </div>
-          </Card>
-        </div>
+        <EnhancedRichNoteModal
+          onAddNote={(text, color, progress, priority, tags, category) => {
+            onAddFutureTask(text, color, priority || "medium")
+            setShowFutureTaskModal(false)
+          }}
+          onClose={() => setShowFutureTaskModal(false)}
+          title="Thêm nhiệm vụ dự kiến"
+        />
       )}
 
-      {/* Modal chỉnh sửa nhiệm vụ dự kiến */}
-      {editingFutureTaskId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa nhiệm vụ dự kiến</h3>
-            <textarea
-              value={futureTaskValues.text}
-              onChange={(e) => setFutureTaskValues({ ...futureTaskValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none h-24"
-              placeholder="Chỉnh sửa nội dung..."
-            />
+      {/* Modal chỉnh sửa nhiệm vụ dự kiến - SỬ DỤNG RICH TEXT */}
+      {editingFutureTaskId && (() => {
+        const task = futureTasks.find(t => t.id === editingFutureTaskId)
+        if (!task) return null
 
-            {/* Trạng thái */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Trạng thái
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
-                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
-                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
-                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
-                  { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, status: s.value })}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.status === s.value
-                      ? `${s.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    <span>{s.icon}</span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Mức độ ưu tiên */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Mức độ ưu tiên
-              </label>
-              <div className="flex gap-2">
-                {[
-                  { value: "low", label: "Thấp", color: "bg-blue-500" },
-                  { value: "medium", label: "Trung bình", color: "bg-yellow-500" },
-                  { value: "high", label: "Cao", color: "bg-red-500" },
-                ].map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => setFutureTaskValues({ ...futureTaskValues, priority: p.value })}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${futureTaskValues.priority === p.value
-                      ? `${p.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button
-                onClick={() => {
-                  setEditingFutureTaskId(null)
-                  setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                }}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={() => {
-                  if (futureTaskValues.text.trim()) {
-                    onUpdateFutureTask(editingFutureTaskId, {
-                      text: futureTaskValues.text,
-                      priority: futureTaskValues.priority,
-                      status: futureTaskValues.status
-                    })
-                    setEditingFutureTaskId(null)
-                    setFutureTaskValues({ text: "", color: "blue", priority: "medium", status: "planning" })
-                  }
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
-              >
-                Lưu
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+        return (
+          <EnhancedRichNoteModal
+            isEditing={true}
+            initialData={{
+              text: task.text,
+              color: task.color || "blue",
+              progress: 0,
+              priority: task.priority || "medium",
+              tags: [],
+              category: "work"
+            }}
+            onAddNote={(text, color, progress, priority, tags, category) => {
+              if (editingFutureTaskId) {
+                onUpdateFutureTask(editingFutureTaskId, {
+                  text,
+                  color,
+                  priority: priority || "medium",
+                  status: task.status || "planning"
+                })
+              }
+              setEditingFutureTaskId(null)
+            }}
+            onClose={() => setEditingFutureTaskId(null)}
+            title="Chỉnh sửa nhiệm vụ dự kiến"
+          />
+        )
+      })()}
 
       {/* Rich Text Note Modal */}
       {showRichNoteModal && (
