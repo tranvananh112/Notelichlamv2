@@ -195,11 +195,12 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
-      // Chỉ lấy notes có date (ghi chú thường)
+      // Lấy tất cả notes và sắp xếp theo created_at
       const { data: allNotesData } = await supabase
         .from("notes")
         .select("*")
         .eq("user_id", user.id)
+        .order("created_at", { ascending: true }) // Sắp xếp theo thời gian tạo
 
       const { data: payrollData } = await supabase.from("payroll_history").select("*").eq("user_id", user.id)
 
@@ -538,7 +539,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   }, [notes])
 
   if (showAdminDashboard && isAdmin) {
-    return <AdminDashboard onBack={() => setShowAdminDashboard(false)} currentUserEmail={user.email} />
+    return <AdminDashboard onBack={() => setShowAdminDashboard(false)} currentUserEmail={user.email || "Unknown"} />
   }
 
   return (

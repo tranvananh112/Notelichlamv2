@@ -93,18 +93,23 @@ export default function NotePanel({
 
       // Nếu timestamp có format HH:MM:SS
       if (timestamp.includes(':')) {
-        const [hours, minutes, seconds] = timestamp.split(':').map(Number)
-        return hours * 3600 + minutes * 60 + (seconds || 0)
+        const parts = timestamp.split(':')
+        const hours = parseInt(parts[0]) || 0
+        const minutes = parseInt(parts[1]) || 0
+        const seconds = parseInt(parts[2]) || 0
+
+        // Chuyển thành tổng số giây từ 00:00:00
+        return hours * 3600 + minutes * 60 + seconds
       }
 
-      // Fallback: sử dụng string comparison
+      // Fallback: sử dụng created_at hoặc id
       return parseInt(timestamp) || 0
     }
 
     const timeA = parseTime(a.timestamp || a.id)
     const timeB = parseTime(b.timestamp || b.id)
 
-    return timeA - timeB // Cũ nhất trước (7h sáng trước 8h sáng)
+    return timeA - timeB // Cũ nhất trước: 12:54:12 (46452s) < 14:34:57 (52497s)
   })
 
   const displayContent = activeTab === "future" ? futureTasks : sortedFilteredNotes
