@@ -365,64 +365,65 @@ export default function NotePanel({
                         </div>
 
                         <div className="flex-1 min-w-0 overflow-hidden pr-2">
-                          <div className={`text-sm font-medium mb-2 break-words ${task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
-                            <RichNoteDisplay
-                              content={task.text}
-                              className="rich-note-content"
-                            />
-                          </div>
-
-                          {/* Priority badge */}
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
-                              {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
-                            </span>
-                            {task.completed && (
-                              <span className="px-2 py-0.5 rounded-full bg-green-500 text-white text-xs font-medium">
-                                Đã hoàn thành
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">
-                              {new Date(task.created_at).toLocaleDateString("vi-VN")}
-                            </span>
-                          </div>
+                          <div
+                            className={`text-sm font-medium mb-2 break-words ${task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}
+                            dangerouslySetInnerHTML={{
+                              __html: task.text
+                                .replace(/(https?:\/\/[^\s<>"]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer break-all">$1</a>')
+                            }}
+                          />
                         </div>
 
-                        {/* Toggle Switch và Actions */}
-                        <div className="flex-shrink-0 flex flex-col gap-2 items-end">
-                          {/* Toggle Switch */}
-                          <TaskToggleSwitch
-                            completed={task.completed || false}
-                            onChange={(completed) => onUpdateFutureTask(task.id, { completed })}
-                          />
+                        {/* Priority badge */}
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <span className={`px-2 py-0.5 rounded-full ${priority.badge} text-white text-xs font-medium`}>
+                            {task.priority === "low" ? "Thấp" : task.priority === "high" ? "Cao" : "Trung bình"}
+                          </span>
+                          {task.completed && (
+                            <span className="px-2 py-0.5 rounded-full bg-green-500 text-white text-xs font-medium">
+                              Đã hoàn thành
+                            </span>
+                          )}
+                        </div>
 
-                          {/* Actions */}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => {
-                                setEditingFutureTaskId(task.id)
-                                setFutureTaskValues({
-                                  text: task.text,
-                                  color: task.color || "blue",
-                                  priority: task.priority || "medium",
-                                  status: task.status || "planning"
-                                })
-                              }}
-                              className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => onDeleteFutureTask(task.id)}
-                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="truncate">
+                            {new Date(task.created_at).toLocaleDateString("vi-VN")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Toggle Switch và Actions */}
+                      <div className="flex-shrink-0 flex flex-col gap-2 items-end">
+                        {/* Toggle Switch */}
+                        <TaskToggleSwitch
+                          completed={task.completed || false}
+                          onChange={(completed) => onUpdateFutureTask(task.id, { completed })}
+                        />
+
+                        {/* Actions */}
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => {
+                              setEditingFutureTaskId(task.id)
+                              setFutureTaskValues({
+                                text: task.text,
+                                color: task.color || "blue",
+                                priority: task.priority || "medium",
+                                status: task.status || "planning"
+                              })
+                            }}
+                            className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-500 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => onDeleteFutureTask(task.id)}
+                            className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-500 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -499,224 +500,240 @@ export default function NotePanel({
         )}
       </div>
 
-      {showNoteModal && (
-        <NoteModal
-          onAddNote={(text, color, progress) => {
-            onAddNote(text, "note", color, progress)
-            setShowNoteModal(false)
-          }}
-          onClose={() => setShowNoteModal(false)}
-        />
-      )}
+      {
+        showNoteModal && (
+          <NoteModal
+            onAddNote={(text, color, progress) => {
+              onAddNote(text, "note", color, progress)
+              setShowNoteModal(false)
+            }}
+            onClose={() => setShowNoteModal(false)}
+          />
+        )
+      }
 
-      {showAttendanceModal && (
-        <AttendanceModal
-          onMarkAttendance={handleMarkAttendance}
-          onClose={() => setShowAttendanceModal(false)}
-        />
-      )}
+      {
+        showAttendanceModal && (
+          <AttendanceModal
+            onMarkAttendance={handleMarkAttendance}
+            onClose={() => setShowAttendanceModal(false)}
+          />
+        )
+      }
 
       {/* Modal chỉnh sửa ghi chú */}
-      {editingNoteId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa ghi chú</h3>
+      {
+        editingNoteId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="bg-white dark:bg-slate-800 p-6 w-full max-w-md rounded-lg shadow-xl">
+              <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Chỉnh sửa ghi chú</h3>
 
-            {/* Bullet Library */}
-            <div className="mb-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+              {/* Bullet Library */}
+              <div className="mb-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Bullet Library:</span>
+                </div>
+                <div className="grid grid-cols-8 gap-1">
+                  {[
+                    { symbol: "•", name: "Bullet" },
+                    { symbol: "○", name: "Circle" },
+                    { symbol: "■", name: "Square" },
+                    { symbol: "▲", name: "Triangle" },
+                    { symbol: "★", name: "Star" },
+                    { symbol: "♦", name: "Diamond" },
+                    { symbol: "→", name: "Arrow" },
+                    { symbol: "✓", name: "Check" },
+                    { symbol: "✗", name: "Cross" },
+                    { symbol: "!", name: "Important" },
+                    { symbol: "?", name: "Question" },
+                    { symbol: "※", name: "Note" },
+                    { symbol: "⚡", name: "Priority" },
+                    { symbol: "🔥", name: "Hot" },
+                    { symbol: "💡", name: "Idea" },
+                    { symbol: "📝", name: "Task" },
+                  ].map((bullet) => (
+                    <button
+                      key={bullet.symbol}
+                      onClick={() => setEditValues({ ...editValues, text: editValues.text + bullet.symbol + " " })}
+                      className="w-7 h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-sm font-bold transition-all hover:scale-105"
+                      title={bullet.name}
+                    >
+                      {bullet.symbol}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-8 gap-1">
-                {[
-                  { symbol: "•", name: "Bullet" },
-                  { symbol: "○", name: "Circle" },
-                  { symbol: "■", name: "Square" },
-                  { symbol: "▲", name: "Triangle" },
-                  { symbol: "★", name: "Star" },
-                  { symbol: "♦", name: "Diamond" },
-                  { symbol: "→", name: "Arrow" },
-                  { symbol: "✓", name: "Check" },
-                  { symbol: "✗", name: "Cross" },
-                  { symbol: "!", name: "Important" },
-                  { symbol: "?", name: "Question" },
-                  { symbol: "※", name: "Note" },
-                  { symbol: "⚡", name: "Priority" },
-                  { symbol: "🔥", name: "Hot" },
-                  { symbol: "💡", name: "Idea" },
-                  { symbol: "📝", name: "Task" },
-                ].map((bullet) => (
-                  <button
-                    key={bullet.symbol}
-                    onClick={() => setEditValues({ ...editValues, text: editValues.text + bullet.symbol + " " })}
-                    className="w-7 h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center justify-center text-sm font-bold transition-all hover:scale-105"
-                    title={bullet.name}
-                  >
-                    {bullet.symbol}
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            <textarea
-              value={editValues.text}
-              onChange={(e) => setEditValues({ ...editValues, text: e.target.value })}
-              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none leading-relaxed"
-              placeholder="Chỉnh sửa nội dung ghi chú..."
-              rows={5}
-            />
-
-            {/* Trạng thái */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Trạng thái
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
-                  { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
-                  { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
-                  { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
-                  { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setEditValues({ ...editValues, status: s.value })}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${editValues.status === s.value
-                      ? `${s.color} text-white shadow-md`
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                      }`}
-                  >
-                    <span>{s.icon}</span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-                Tiến độ: {editValues.progress}%
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={editValues.progress}
-                onChange={(e) => setEditValues({ ...editValues, progress: Number.parseInt(e.target.value) })}
-                className="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer"
+              <textarea
+                value={editValues.text}
+                onChange={(e) => setEditValues({ ...editValues, text: e.target.value })}
+                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white mb-3 resize-none leading-relaxed"
+                placeholder="Chỉnh sửa nội dung ghi chú..."
+                rows={5}
               />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button
-                onClick={() => setEditingNoteId(null)}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={() => handleSaveEdit(editingNoteId)}
-                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600"
-              >
-                Lưu
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+
+              {/* Trạng thái */}
+              <div className="mb-4">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                  Trạng thái
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "planning", label: "Đang lên kế hoạch", color: "bg-gray-500", icon: "📋" },
+                    { value: "inProgress", label: "Đang tiến hành", color: "bg-blue-500", icon: "⚡" },
+                    { value: "working", label: "Đang làm", color: "bg-orange-500", icon: "🔥" },
+                    { value: "nearDone", label: "Gần xong", color: "bg-purple-500", icon: "🚀" },
+                    { value: "completed", label: "Đã xong", color: "bg-green-500", icon: "✅" },
+                  ].map((s) => (
+                    <button
+                      key={s.value}
+                      onClick={() => setEditValues({ ...editValues, status: s.value })}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${editValues.status === s.value
+                        ? `${s.color} text-white shadow-md`
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                        }`}
+                    >
+                      <span>{s.icon}</span>
+                      <span className="truncate">{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                  Tiến độ: {editValues.progress}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={editValues.progress}
+                  onChange={(e) => setEditValues({ ...editValues, progress: Number.parseInt(e.target.value) })}
+                  className="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  onClick={() => setEditingNoteId(null)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={() => handleSaveEdit(editingNoteId)}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600"
+                >
+                  Lưu
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )
+      }
 
       {/* Modal thêm nhiệm vụ dự kiến - SỬ DỤNG RICH TEXT */}
-      {showFutureTaskModal && (
-        <EnhancedRichNoteModal
-          onAddNote={(text, color, progress, priority, tags, category) => {
-            onAddFutureTask(text, color, priority || "medium")
-            setShowFutureTaskModal(false)
-          }}
-          onClose={() => setShowFutureTaskModal(false)}
-          title="Thêm nhiệm vụ dự kiến"
-        />
-      )}
+      {
+        showFutureTaskModal && (
+          <EnhancedRichNoteModal
+            onAddNote={(text, color, progress, priority, tags, category) => {
+              onAddFutureTask(text, color, priority || "medium")
+              setShowFutureTaskModal(false)
+            }}
+            onClose={() => setShowFutureTaskModal(false)}
+            title="Thêm nhiệm vụ dự kiến"
+          />
+        )
+      }
 
       {/* Modal chỉnh sửa nhiệm vụ dự kiến - SỬ DỤNG RICH TEXT */}
-      {editingFutureTaskId && (() => {
-        const task = futureTasks.find(t => t.id === editingFutureTaskId)
-        if (!task) return null
+      {
+        editingFutureTaskId && (() => {
+          const task = futureTasks.find(t => t.id === editingFutureTaskId)
+          if (!task) return null
 
-        return (
+          return (
+            <EnhancedRichNoteModal
+              isEditing={true}
+              initialData={{
+                text: task.text,
+                color: task.color || "blue",
+                progress: 0,
+                priority: task.priority || "medium",
+                tags: [],
+                category: "work"
+              }}
+              onAddNote={(text, color, progress, priority, tags, category) => {
+                if (editingFutureTaskId) {
+                  onUpdateFutureTask(editingFutureTaskId, {
+                    text,
+                    color,
+                    priority: priority || "medium",
+                    status: task.status || "planning"
+                  })
+                }
+                setEditingFutureTaskId(null)
+              }}
+              onClose={() => setEditingFutureTaskId(null)}
+              title="Chỉnh sửa nhiệm vụ dự kiến"
+            />
+          )
+        })()
+      }
+
+      {/* Rich Text Note Modal */}
+      {
+        showRichNoteModal && (
+          <EnhancedRichNoteModal
+            onAddNote={(text, color, progress, priority, tags, category) => {
+              onAddNote(text, "note", color, progress)
+              setShowRichNoteModal(false)
+            }}
+            onClose={() => setShowRichNoteModal(false)}
+          />
+        )
+      }
+
+      {/* Rich Text Edit Modal */}
+      {
+        editingRichNote && (
           <EnhancedRichNoteModal
             isEditing={true}
             initialData={{
-              text: task.text,
-              color: task.color || "blue",
-              progress: 0,
-              priority: task.priority || "medium",
-              tags: [],
-              category: "work"
+              text: editingRichNote.text,
+              color: editingRichNote.color || "blue",
+              progress: editingRichNote.progress || 0,
+              priority: "medium", // Default priority for existing notes
+              tags: [], // Default empty tags
+              category: "work" // Default category
             }}
             onAddNote={(text, color, progress, priority, tags, category) => {
-              if (editingFutureTaskId) {
-                onUpdateFutureTask(editingFutureTaskId, {
-                  text,
-                  color,
-                  priority: priority || "medium",
-                  status: task.status || "planning"
-                })
-              }
-              setEditingFutureTaskId(null)
+              onUpdateNote(editingRichNote.id, {
+                text,
+                color,
+                progress,
+                status: editingRichNote.status || "planning"
+              })
+              setEditingRichNote(null)
             }}
-            onClose={() => setEditingFutureTaskId(null)}
-            title="Chỉnh sửa nhiệm vụ dự kiến"
+            onClose={() => setEditingRichNote(null)}
           />
         )
-      })()}
-
-      {/* Rich Text Note Modal */}
-      {showRichNoteModal && (
-        <EnhancedRichNoteModal
-          onAddNote={(text, color, progress, priority, tags, category) => {
-            onAddNote(text, "note", color, progress)
-            setShowRichNoteModal(false)
-          }}
-          onClose={() => setShowRichNoteModal(false)}
-        />
-      )}
-
-      {/* Rich Text Edit Modal */}
-      {editingRichNote && (
-        <EnhancedRichNoteModal
-          isEditing={true}
-          initialData={{
-            text: editingRichNote.text,
-            color: editingRichNote.color || "blue",
-            progress: editingRichNote.progress || 0,
-            priority: "medium", // Default priority for existing notes
-            tags: [], // Default empty tags
-            category: "work" // Default category
-          }}
-          onAddNote={(text, color, progress, priority, tags, category) => {
-            onUpdateNote(editingRichNote.id, {
-              text,
-              color,
-              progress,
-              status: editingRichNote.status || "planning"
-            })
-            setEditingRichNote(null)
-          }}
-          onClose={() => setEditingRichNote(null)}
-        />
-      )}
+      }
 
       {/* Templates Modal */}
-      {showTemplates && (
-        <NoteTemplates
-          onSelectTemplate={(template) => {
-            setShowRichNoteModal(true)
-            setShowTemplates(false)
-            // You can pass template data to the rich note modal here
-          }}
-          onClose={() => setShowTemplates(false)}
-        />
-      )}
-    </div>
+      {
+        showTemplates && (
+          <NoteTemplates
+            onSelectTemplate={(template) => {
+              setShowRichNoteModal(true)
+              setShowTemplates(false)
+              // You can pass template data to the rich note modal here
+            }}
+            onClose={() => setShowTemplates(false)}
+          />
+        )
+      }
+    </div >
   )
 }
