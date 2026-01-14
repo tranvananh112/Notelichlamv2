@@ -19,7 +19,6 @@ const PayrollModal = dynamic(() => import("./payroll-modal"))
 const AdminDashboard = dynamic(() => import("./admin-dashboard"))
 
 import Header from "./header"
-import Footer from "./footer"
 import ReportsButton from "./reports-button"
 import { Card } from "./ui/card"
 import { Button } from "./ui/button"
@@ -544,10 +543,10 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex flex-col">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <Header currentTime={currentTime} />
 
-      <div className="container mx-auto px-4 py-8 flex-1">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Xin chào, {user.email}</h1>
@@ -645,8 +644,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           onClose={() => setShowPayrollModal(false)}
         />
       )}
-
-      <Footer />
     </main>
   )
 }

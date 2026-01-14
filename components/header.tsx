@@ -36,6 +36,17 @@ export default function Header({ currentTime }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-lg">
       <div className="container mx-auto px-4 py-6">
+        {/* Tet GIF Banner */}
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <img
+              src="/animations/gif tết.gif"
+              alt="Tết Animation"
+              className="h-24 w-auto object-contain rounded-lg shadow-xl"
+            />
+          </div>
+        </div>
+
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">
