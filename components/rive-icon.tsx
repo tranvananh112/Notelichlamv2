@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 
 interface RiveIconProps {
     src: string
+    artboard?: string
     stateMachine?: string
     width?: number
     height?: number
@@ -15,6 +16,7 @@ interface RiveIconProps {
 
 export default function RiveIcon({
     src,
+    artboard,
     stateMachine = "State Machine 1",
     width = 32,
     height = 32,
@@ -24,6 +26,7 @@ export default function RiveIcon({
 }: RiveIconProps) {
     const { rive, RiveComponent } = useRive({
         src,
+        artboard,
         stateMachines: stateMachine,
         autoplay,
     })

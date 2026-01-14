@@ -120,6 +120,7 @@ export default function RiveIconPicker({ onSelectIcon, onClose }: RiveIconPicker
                                     <div className="w-8 h-8 flex items-center justify-center">
                                         <RiveIcon
                                             src="/animations/25691-47977-interactive-icon-set.riv"
+                                            artboard={icon.artboard}
                                             width={32}
                                             height={32}
                                             className="transition-transform group-hover:scale-110"
