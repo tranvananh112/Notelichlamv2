@@ -1,4 +1,4 @@
-# 🧪 HƯỚNG DẪN TEST CUỐI CÙNG
+x# 🧪 HƯỚNG DẪN TEST CUỐI CÙNG
 
 ## ✅ **Checklist kiểm tra Lightning Optimization**
 

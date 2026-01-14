@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { X, Save, FileText, Palette, Flag, Tag, Calendar } from "lucide-react"
+import { X, Save, FileText, Palette, Flag, Tag, Calendar, Smile } from "lucide-react"
 import UltraFastRichEditorV2 from "./ultra-fast-rich-editor-v2"
+import RiveIconPicker from "./rive-icon-picker"
 
 interface EnhancedRichNoteModalProps {
     onAddNote: (text: string, color: string, progress: number, priority?: string, tags?: string[], category?: string) => void
@@ -65,6 +66,7 @@ export default function EnhancedRichNoteModal({
     const [tags, setTags] = useState<string[]>(initialData?.tags || [])
     const [tagInput, setTagInput] = useState("")
     const [activeTab, setActiveTab] = useState<"content" | "format" | "details">("content")
+    const [showIconPicker, setShowIconPicker] = useState(false)
 
     const handleAddTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -139,6 +141,18 @@ export default function EnhancedRichNoteModal({
                 <div className="flex-1 overflow-y-auto" style={{ maxHeight: "60vh" }}>
                     {activeTab === "content" && (
                         <div className="p-6">
+                            {/* Icon Button */}
+                            <div className="mb-4 flex justify-end">
+                                <Button
+                                    onClick={() => setShowIconPicker(true)}
+                                    variant="outline"
+                                    className="border-2 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-semibold"
+                                >
+                                    <Smile className="w-4 h-4 mr-2" />
+                                    Thêm Icon
+                                </Button>
+                            </div>
+
                             <UltraFastRichEditorV2
                                 value={noteContent}
                                 onChange={setNoteContent}
@@ -375,6 +389,17 @@ export default function EnhancedRichNoteModal({
                     </div>
                 </div>
             </Card>
+
+            {/* Icon Picker Modal */}
+            {showIconPicker && (
+                <RiveIconPicker
+                    onSelectIcon={(iconHtml) => {
+                        setNoteContent(noteContent + iconHtml)
+                        setShowIconPicker(false)
+                    }}
+                    onClose={() => setShowIconPicker(false)}
+                />
+            )}
         </div>
     )
 }
