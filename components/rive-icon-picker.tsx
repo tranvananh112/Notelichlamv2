@@ -11,28 +11,63 @@ interface RiveIconPickerProps {
     onClose: () => void
 }
 
-// Danh sách các icon có sẵn trong file Rive
+// Danh sách 42 icons từ Interactive Icon Set
 const RIVE_ICONS = [
-    { id: "home", name: "Nhà", artboard: "Home" },
-    { id: "work", name: "Công việc", artboard: "Work" },
-    { id: "heart", name: "Yêu thích", artboard: "Heart" },
-    { id: "star", name: "Ngôi sao", artboard: "Star" },
-    { id: "bell", name: "Thông báo", artboard: "Bell" },
-    { id: "mail", name: "Thư", artboard: "Mail" },
-    { id: "user", name: "Người dùng", artboard: "User" },
-    { id: "settings", name: "Cài đặt", artboard: "Settings" },
-    { id: "calendar", name: "Lịch", artboard: "Calendar" },
-    { id: "clock", name: "Đồng hồ", artboard: "Clock" },
-    { id: "camera", name: "Máy ảnh", artboard: "Camera" },
-    { id: "music", name: "Âm nhạc", artboard: "Music" },
-    { id: "video", name: "Video", artboard: "Video" },
-    { id: "phone", name: "Điện thoại", artboard: "Phone" },
-    { id: "message", name: "Tin nhắn", artboard: "Message" },
-    { id: "location", name: "Vị trí", artboard: "Location" },
-    { id: "search", name: "Tìm kiếm", artboard: "Search" },
-    { id: "plus", name: "Thêm", artboard: "Plus" },
-    { id: "check", name: "Hoàn thành", artboard: "Check" },
-    { id: "close", name: "Đóng", artboard: "Close" },
+    // Row 1
+    { id: "star", name: "Ngôi sao", artboard: "star" },
+    { id: "heart", name: "Trái tim", artboard: "heart" },
+    { id: "lightning", name: "Sét", artboard: "lightning" },
+    { id: "sparkle", name: "Lấp lánh", artboard: "sparkle" },
+    { id: "flower", name: "Hoa", artboard: "flower" },
+    { id: "diamond", name: "Kim cương", artboard: "diamond" },
+
+    // Row 2
+    { id: "candy", name: "Kẹo", artboard: "candy" },
+    { id: "rabbit", name: "Thỏ", artboard: "rabbit" },
+    { id: "duck", name: "Vịt", artboard: "duck" },
+    { id: "lollipop", name: "Kẹo mút", artboard: "lollipop" },
+    { id: "chat", name: "Chat", artboard: "chat" },
+    { id: "monster", name: "Quái vật", artboard: "monster" },
+
+    // Row 3
+    { id: "cloud", name: "Mây", artboard: "cloud" },
+    { id: "strawberry", name: "Dâu", artboard: "strawberry" },
+    { id: "skull", name: "Đầu lâu", artboard: "skull" },
+    { id: "bear", name: "Gấu", artboard: "bear" },
+    { id: "moon", name: "Mặt trăng", artboard: "moon" },
+    { id: "cherry", name: "Cherry", artboard: "cherry" },
+
+    // Row 4
+    { id: "shooting-star", name: "Sao băng", artboard: "shooting-star" },
+    { id: "popsicle", name: "Kem que", artboard: "popsicle" },
+    { id: "crown", name: "Vương miện", artboard: "crown" },
+    { id: "cactus", name: "Xương rồng", artboard: "cactus" },
+    { id: "sun", name: "Mặt trời", artboard: "sun" },
+    { id: "socks", name: "Tất", artboard: "socks" },
+
+    // Row 5
+    { id: "cassette", name: "Băng nhạc", artboard: "cassette" },
+    { id: "fire", name: "Lửa", artboard: "fire" },
+    { id: "mail", name: "Thư", artboard: "mail" },
+    { id: "perfume", name: "Nước hoa", artboard: "perfume" },
+    { id: "lipstick", name: "Son môi", artboard: "lipstick" },
+    { id: "blob", name: "Giọt", artboard: "blob" },
+
+    // Row 6
+    { id: "phone", name: "Điện thoại", artboard: "phone" },
+    { id: "popcorn", name: "Bỏng ngô", artboard: "popcorn" },
+    { id: "ticket", name: "Vé", artboard: "ticket" },
+    { id: "camera", name: "Máy ảnh", artboard: "camera" },
+    { id: "happy-sun", name: "Mặt trời vui", artboard: "happy-sun" },
+    { id: "bow", name: "Nơ", artboard: "bow" },
+
+    // Row 7
+    { id: "potion", name: "Thuốc", artboard: "potion" },
+    { id: "gun", name: "Súng", artboard: "gun" },
+    { id: "skateboard", name: "Ván trượt", artboard: "skateboard" },
+    { id: "egg", name: "Trứng", artboard: "egg" },
+    { id: "coffee", name: "Cà phê", artboard: "coffee" },
+    { id: "happy-star", name: "Sao vui", artboard: "happy-star" },
 ]
 
 export default function RiveIconPicker({ onSelectIcon, onClose }: RiveIconPickerProps) {
