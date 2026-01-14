@@ -38,9 +38,6 @@ export default function Header({ currentTime }: HeaderProps) {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">
-              📅
-            </div>
             <img
               src="/animations/gif tết.gif"
               alt="Tết"
