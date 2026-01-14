@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { X, Save, FileText, Palette, Flag, Tag, Calendar, Smile } from "lucide-react"
 import UltraFastRichEditorV2 from "./ultra-fast-rich-editor-v2"
-import RiveIconPicker from "./rive-icon-picker"
+import EmojiIconPicker from "./emoji-icon-picker"
 
 interface EnhancedRichNoteModalProps {
     onAddNote: (text: string, color: string, progress: number, priority?: string, tags?: string[], category?: string) => void
@@ -392,9 +392,9 @@ export default function EnhancedRichNoteModal({
 
             {/* Icon Picker Modal */}
             {showIconPicker && (
-                <RiveIconPicker
-                    onSelectIcon={(iconHtml) => {
-                        setNoteContent(noteContent + iconHtml)
+                <EmojiIconPicker
+                    onSelectIcon={(emoji) => {
+                        setNoteContent(noteContent + emoji)
                         setShowIconPicker(false)
                     }}
                     onClose={() => setShowIconPicker(false)}
