@@ -19,7 +19,6 @@ const PayrollModal = dynamic(() => import("./payroll-modal"))
 const AdminDashboard = dynamic(() => import("./admin-dashboard"))
 
 import Header from "./header"
-import VideoBanner from "./video-banner"
 import ReportsButton from "./reports-button"
 import { Card } from "./ui/card"
 import { Button } from "./ui/button"
@@ -545,13 +544,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      {/* Video Banner at the top */}
-      <VideoBanner
-        videoSrc="/videos/logo-animation.mp4"
-        height={180}
-        className="shadow-lg"
-      />
-
       <Header currentTime={currentTime} />
 
       <div className="container mx-auto px-4 py-8">
