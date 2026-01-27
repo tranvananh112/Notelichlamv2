@@ -34,18 +34,22 @@ export default function Header({ currentTime }: HeaderProps) {
   })
 
   return (
-    <header className="sticky top-0 z-50 shadow-lg relative overflow-hidden">
-      {/* SVG Banner Background */}
-      <div className="w-full h-32 relative">
-        <img
-          src="/Thanh Ngang Năm Mới.svg"
-          alt="Năm Mới"
-          className="w-full h-full object-cover"
-        />
+    <>
+      {/* SVG Banner Header - Full Width */}
+      <header className="sticky top-0 z-50 shadow-lg">
+        <div className="w-full">
+          <img
+            src="/Thanh Ngang Năm Mới.svg"
+            alt="Năm Mới"
+            className="w-full h-auto object-contain"
+          />
+        </div>
+      </header>
 
-        {/* Content Overlay */}
-        <div className="absolute inset-0 container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 h-full">
+      {/* Info Bar Below Header */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-md">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">
                 📅
@@ -55,26 +59,24 @@ export default function Header({ currentTime }: HeaderProps) {
                 alt="Tết"
                 className="h-12 w-auto object-contain rounded-lg"
               />
+              <img
+                src="/animations/gif tết 2.gif"
+                alt="Tết 2026"
+                className="h-12 w-auto object-contain"
+              />
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">Note Công Việc</h1>
-                <p className="text-white/90 text-sm drop-shadow">Theo dõi công việc và điểm danh</p>
+                <h1 className="text-2xl md:text-3xl font-bold">Note Công Việc</h1>
+                <p className="text-white/80 text-sm">Theo dõi công việc và điểm danh</p>
               </div>
             </div>
 
             <div className="text-right">
-              <div className="text-sm font-semibold text-white/95 drop-shadow">{formattedDate}</div>
-              <div className="text-2xl font-bold font-mono text-white drop-shadow-lg">{formattedTime}</div>
+              <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
+              <div className="text-2xl font-bold font-mono">{formattedTime}</div>
             </div>
           </div>
         </div>
-
-        {/* Tet GIF 2 - Center */}
-        <img
-          src="/animations/gif tết 2.gif"
-          alt="Tết 2026"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-auto object-contain pointer-events-none z-10 drop-shadow-xl"
-        />
       </div>
-    </header>
+    </>
   )
 }
