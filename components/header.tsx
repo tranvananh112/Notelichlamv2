@@ -35,17 +35,6 @@ export default function Header({ currentTime }: HeaderProps) {
 
   return (
     <>
-      {/* Tet GIF Banner - Above Header */}
-      <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 dark:from-red-700 dark:via-yellow-600 dark:to-red-700 py-3">
-        <div className="flex justify-center items-center">
-          <img
-            src="/animations/gif tết 2.gif"
-            alt="Tết 2026"
-            className="h-16 w-auto object-contain"
-          />
-        </div>
-      </div>
-
       <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -53,7 +42,7 @@ export default function Header({ currentTime }: HeaderProps) {
               <img
                 src="/ngựa.svg"
                 alt="Ngựa Tết"
-                className="h-20 w-auto object-contain"
+                className="h-32 w-auto object-contain"
               />
               <img
                 src="/animations/gif tết.gif"
@@ -66,18 +55,31 @@ export default function Header({ currentTime }: HeaderProps) {
               </div>
             </div>
 
-            <div className="text-right">
-              <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
-              <div className="text-2xl font-bold font-mono">{formattedTime}</div>
+            <div className="text-right flex flex-col items-end gap-2">
+              <div>
+                <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
+                <div className="text-2xl font-bold font-mono">{formattedTime}</div>
+              </div>
               <img
                 src="/ngựa.svg"
                 alt="Ngựa Tết"
-                className="h-20 w-auto object-contain ml-auto mt-2"
+                className="h-32 w-auto object-contain"
               />
             </div>
           </div>
         </div>
       </header>
+
+      {/* Tet GIF 2 Banner - Below Header */}
+      <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 dark:from-red-700 dark:via-yellow-600 dark:to-red-700 py-2">
+        <div className="flex justify-center items-center">
+          <img
+            src="/animations/gif tết 2.gif"
+            alt="Tết 2026"
+            className="h-12 w-auto object-contain"
+          />
+        </div>
+      </div>
     </>
   )
 }
