@@ -36,11 +36,11 @@ export default function Header({ currentTime }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 shadow-lg relative overflow-hidden">
       {/* SVG Banner Background */}
-      <div className="w-full h-32 relative">
+      <div className="w-full h-40 relative">
         <img
           src="/Thanh Ngang Năm Mới.svg"
           alt="Năm Mới"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
 
         {/* Content Overlay */}
