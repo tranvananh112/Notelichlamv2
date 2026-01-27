@@ -34,36 +34,50 @@ export default function Header({ currentTime }: HeaderProps) {
   })
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-lg">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img
-              src="/animations/gif tết.gif"
-              alt="Tết"
-              className="h-12 w-auto object-contain rounded-lg"
-            />
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Note Công Việc</h1>
-              <p className="text-white/80 text-sm">Theo dõi công việc và điểm danh</p>
-            </div>
-          </div>
-
-          {/* Tet GIF 2 - Center */}
-          <div className="flex justify-center">
-            <img
-              src="/animations/gif tết 2.gif"
-              alt="Tết 2026"
-              className="h-16 w-auto object-contain"
-            />
-          </div>
-
-          <div className="text-right">
-            <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
-            <div className="text-2xl font-bold font-mono">{formattedTime}</div>
-          </div>
+    <>
+      {/* Horse SVG + Tet GIF Banner - Above Header */}
+      <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 dark:from-red-700 dark:via-yellow-600 dark:to-red-700 py-3">
+        <div className="flex justify-center items-center gap-4">
+          <img
+            src="/ngựa.svg"
+            alt="Ngựa Tết"
+            className="h-16 w-auto object-contain"
+          />
+          <img
+            src="/animations/gif tết 2.gif"
+            alt="Tết 2026"
+            className="h-16 w-auto object-contain"
+          />
+          <img
+            src="/ngựa.svg"
+            alt="Ngựa Tết"
+            className="h-16 w-auto object-contain"
+          />
         </div>
       </div>
-    </header>
+
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-lg">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img
+                src="/animations/gif tết.gif"
+                alt="Tết"
+                className="h-12 w-auto object-contain rounded-lg"
+              />
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Note Công Việc</h1>
+                <p className="text-white/80 text-sm">Theo dõi công việc và điểm danh</p>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
+              <div className="text-2xl font-bold font-mono">{formattedTime}</div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </>
   )
 }
