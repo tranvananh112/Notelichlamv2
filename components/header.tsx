@@ -35,14 +35,12 @@ export default function Header({ currentTime }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-lg">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="container mx-auto px-4 py-6 relative">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img
-              src="/ngựa.svg"
-              alt="Ngựa Tết"
-              className="h-32 w-auto object-contain"
-            />
+            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">
+              📅
+            </div>
             <img
               src="/animations/gif tết.gif"
               alt="Tết"
@@ -54,18 +52,23 @@ export default function Header({ currentTime }: HeaderProps) {
             </div>
           </div>
 
-          <div className="text-right flex flex-col items-end gap-2">
-            <div>
-              <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
-              <div className="text-2xl font-bold font-mono">{formattedTime}</div>
-            </div>
-            <img
-              src="/ngựa.svg"
-              alt="Ngựa Tết"
-              className="h-32 w-auto object-contain"
-            />
+          <div className="text-right">
+            <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
+            <div className="text-2xl font-bold font-mono">{formattedTime}</div>
           </div>
         </div>
+
+        {/* Large Horse Icons - Positioned Absolutely */}
+        <img
+          src="/ngựa.svg"
+          alt="Ngựa Tết"
+          className="absolute left-4 top-1/2 -translate-y-1/2 h-32 w-auto object-contain opacity-30 pointer-events-none"
+        />
+        <img
+          src="/ngựa.svg"
+          alt="Ngựa Tết"
+          className="absolute right-4 top-1/2 -translate-y-1/2 h-32 w-auto object-contain opacity-30 pointer-events-none"
+        />
       </div>
     </header>
   )
