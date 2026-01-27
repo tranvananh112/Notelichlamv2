@@ -69,6 +69,13 @@ export default function Header({ currentTime }: HeaderProps) {
           alt="Ngựa Tết"
           className="absolute right-4 top-1/2 -translate-y-1/2 h-32 w-auto object-contain opacity-30 pointer-events-none"
         />
+
+        {/* Tet GIF 2 - Center */}
+        <img
+          src="/animations/gif tết 2.gif"
+          alt="Tết 2026"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-auto object-contain pointer-events-none z-10"
+        />
       </div>
     </header>
   )
