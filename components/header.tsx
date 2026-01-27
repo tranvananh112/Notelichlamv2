@@ -34,49 +34,15 @@ export default function Header({ currentTime }: HeaderProps) {
   })
 
   return (
-    <>
-      {/* SVG Banner Header - Full Width */}
-      <header className="sticky top-0 z-50 shadow-lg">
-        <div className="w-full">
-          <img
-            src="/Thanh Ngang Năm Mới.svg"
-            alt="Năm Mới"
-            className="w-full h-auto object-contain"
-          />
-        </div>
-      </header>
-
-      {/* Info Bar Below Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 text-white shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">
-                📅
-              </div>
-              <img
-                src="/animations/gif tết.gif"
-                alt="Tết"
-                className="h-12 w-auto object-contain rounded-lg"
-              />
-              <img
-                src="/animations/gif tết 2.gif"
-                alt="Tết 2026"
-                className="h-12 w-auto object-contain"
-              />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">Note Công Việc</h1>
-                <p className="text-white/80 text-sm">Theo dõi công việc và điểm danh</p>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
-              <div className="text-2xl font-bold font-mono">{formattedTime}</div>
-            </div>
-          </div>
-        </div>
+    <header className="sticky top-0 z-50 shadow-lg">
+      {/* SVG Banner Only */}
+      <div className="w-full">
+        <img
+          src="/Thanh Ngang Năm Mới.svg"
+          alt="Năm Mới"
+          className="w-full h-auto object-contain"
+        />
       </div>
-    </>
+    </header>
   )
 }
