@@ -40,7 +40,7 @@ export default function Header({ currentTime }: HeaderProps) {
         <img
           src="/Thanh Ngang Năm Mới.svg"
           alt="Năm Mới"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover object-top"
         />
 
         {/* Content Overlay */}
