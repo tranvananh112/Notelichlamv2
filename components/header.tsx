@@ -38,7 +38,7 @@ export default function Header({ currentTime }: HeaderProps) {
       {/* SVG Banner Background */}
       <div className="w-full h-40 relative">
         <img
-          src="/Thanh Ngang Năm Mới.svg"
+          src="/thanh-ngang-nam-moi.svg"
           alt="Năm Mới"
           className="w-full h-full object-cover object-top"
         />
