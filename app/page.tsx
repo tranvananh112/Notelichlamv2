@@ -40,6 +40,15 @@ export default function HomePage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <header className="border-b border-slate-200/50 backdrop-blur-md bg-white/50">
+        {/* Banner */}
+        <div className="w-full overflow-hidden">
+          <img
+            src="/banner anh2026.svg"
+            alt="Banner 2026"
+            className="w-full h-auto object-cover max-h-[200px]"
+          />
+        </div>
+
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Calendar className="w-8 h-8 text-purple-600" />
