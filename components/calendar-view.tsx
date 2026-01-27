@@ -13,6 +13,8 @@ interface CalendarViewProps {
   getAttendanceInfo: (date: Date) => { type: string; icon: string } | null
   getFutureTasksCount: (date: Date) => number
   getIncompleteNoteCount: (date: Date) => number
+  getSpecialDayType: (date: Date) => string | null
+  onSpecialDayClick: (date: Date) => void
 }
 
 export default function CalendarView({
@@ -23,6 +25,8 @@ export default function CalendarView({
   getAttendanceInfo,
   getFutureTasksCount,
   getIncompleteNoteCount,
+  getSpecialDayType,
+  onSpecialDayClick,
 }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
@@ -258,6 +262,35 @@ export default function CalendarView({
                   </div>
                 )}
               </div>
+
+              {/* Special Day Icon */}
+              {(() => {
+                const specialType = getSpecialDayType(currentDate)
+                if (specialType) {
+                  return (
+                    <div className="absolute top-1 left-1">
+                      {specialType === 'horse' && (
+                        <img src="/ngựa.svg" alt="Ngày đặc biệt" className="w-6 h-6 drop-shadow-lg" />
+                      )}
+                      {specialType === 'tet' && <span className="text-xl drop-shadow-lg">🎊</span>}
+                      {specialType === 'holiday' && <span className="text-xl drop-shadow-lg">🎉</span>}
+                    </div>
+                  )
+                }
+                return null
+              })()}
+
+              {/* Button to mark special day */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSpecialDayClick(currentDate)
+                }}
+                className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-yellow-400 hover:bg-yellow-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                title="Đánh dấu ngày đặc biệt"
+              >
+                <span className="text-xs">⭐</span>
+              </button>
             </button>
           )
         })}

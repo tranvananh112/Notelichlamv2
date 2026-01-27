@@ -17,6 +17,7 @@ const NotePanel = dynamic(() => import("./note-panel"), {
 const ReportsModal = dynamic(() => import("./reports-modal"))
 const PayrollModal = dynamic(() => import("./payroll-modal"))
 const AdminDashboard = dynamic(() => import("./admin-dashboard"))
+const SpecialDayModal = dynamic(() => import("./special-day-modal"))
 
 import Header from "./header"
 import ReportsButton from "./reports-button"
@@ -81,6 +82,9 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     completed?: boolean
     created_at: string
   }>>>({}) // Store all future tasks by date
+  const [specialDays, setSpecialDays] = useState<Record<string, string>>({}) // dateKey -> type
+  const [showSpecialDayModal, setShowSpecialDayModal] = useState(false)
+  const [specialDayModalDate, setSpecialDayModalDate] = useState<Date | null>(null)
 
   // Load all future tasks for calendar display
   useEffect(() => {
@@ -126,6 +130,32 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
+
+  // Load special days
+  useEffect(() => {
+    const loadSpecialDays = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("special_days")
+          .select("*")
+          .eq("user_id", user.id)
+
+        if (error) {
+          console.error("Error loading special days:", error)
+        } else {
+          const daysMap = data?.reduce((acc: Record<string, string>, day: any) => {
+            acc[day.date] = day.type
+            return acc
+          }, {}) || {}
+          setSpecialDays(daysMap)
+        }
+      } catch (error) {
+        console.error("Error loading special days:", error)
+      }
+    }
+
+    loadSpecialDays()
+  }, [user.id])
 
   // Load future tasks from Supabase for specific date
   useEffect(() => {
@@ -469,6 +499,55 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
     router.push("/auth/login")
   }
 
+  const getSpecialDayType = (date: Date): string | null => {
+    const key = date.toISOString().split("T")[0]
+    return specialDays[key] || null
+  }
+
+  const handleSpecialDayClick = (date: Date) => {
+    setSpecialDayModalDate(date)
+    setShowSpecialDayModal(true)
+  }
+
+  const saveSpecialDay = async (type: string | null) => {
+    if (!specialDayModalDate) return
+
+    const dateKey = specialDayModalDate.toISOString().split("T")[0]
+
+    try {
+      if (type === null) {
+        // Remove special day
+        await supabase
+          .from("special_days")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("date", dateKey)
+
+        setSpecialDays(prev => {
+          const updated = { ...prev }
+          delete updated[dateKey]
+          return updated
+        })
+      } else {
+        // Add or update special day
+        await supabase
+          .from("special_days")
+          .upsert({
+            user_id: user.id,
+            date: dateKey,
+            type: type
+          })
+
+        setSpecialDays(prev => ({
+          ...prev,
+          [dateKey]: type
+        }))
+      }
+    } catch (error) {
+      console.error("Error saving special day:", error)
+    }
+  }
+
   const getNoteCount = (date: Date): number => {
     const key = date.toISOString().split("T")[0]
     return notes[key]?.length || 0
@@ -598,6 +677,8 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
             getAttendanceInfo={getAttendanceInfo}
             getFutureTasksCount={getFutureTasksCount}
             getIncompleteNoteCount={getIncompleteNoteCount}
+            getSpecialDayType={getSpecialDayType}
+            onSpecialDayClick={handleSpecialDayClick}
           />
         </Card>
 
@@ -642,6 +723,15 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           daysWorked={daysWorked}
           onConfirm={handlePayrollConfirm}
           onClose={() => setShowPayrollModal(false)}
+        />
+      )}
+
+      {showSpecialDayModal && specialDayModalDate && (
+        <SpecialDayModal
+          date={specialDayModalDate}
+          currentType={getSpecialDayType(specialDayModalDate)}
+          onSave={saveSpecialDay}
+          onClose={() => setShowSpecialDayModal(false)}
         />
       )}
     </main>

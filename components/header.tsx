@@ -35,22 +35,12 @@ export default function Header({ currentTime }: HeaderProps) {
 
   return (
     <>
-      {/* Horse SVG + Tet GIF Banner - Above Header */}
+      {/* Tet GIF Banner - Above Header */}
       <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 dark:from-red-700 dark:via-yellow-600 dark:to-red-700 py-3">
-        <div className="flex justify-center items-center gap-4">
-          <img
-            src="/ngựa.svg"
-            alt="Ngựa Tết"
-            className="h-16 w-auto object-contain"
-          />
+        <div className="flex justify-center items-center">
           <img
             src="/animations/gif tết 2.gif"
             alt="Tết 2026"
-            className="h-16 w-auto object-contain"
-          />
-          <img
-            src="/ngựa.svg"
-            alt="Ngựa Tết"
             className="h-16 w-auto object-contain"
           />
         </div>
@@ -60,6 +50,11 @@ export default function Header({ currentTime }: HeaderProps) {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
+              <img
+                src="/ngựa.svg"
+                alt="Ngựa Tết"
+                className="h-20 w-auto object-contain"
+              />
               <img
                 src="/animations/gif tết.gif"
                 alt="Tết"
@@ -74,6 +69,11 @@ export default function Header({ currentTime }: HeaderProps) {
             <div className="text-right">
               <div className="text-sm font-semibold text-white/90">{formattedDate}</div>
               <div className="text-2xl font-bold font-mono">{formattedTime}</div>
+              <img
+                src="/ngựa.svg"
+                alt="Ngựa Tết"
+                className="h-20 w-auto object-contain ml-auto mt-2"
+              />
             </div>
           </div>
         </div>
