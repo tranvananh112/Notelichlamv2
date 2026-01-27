@@ -626,40 +626,6 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
       <Header currentTime={currentTime} />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Info Bar with GIFs and Time */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 mb-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl">
-                📅
-              </div>
-              <img
-                src="/animations/gif tết.gif"
-                alt="Tết"
-                className="h-12 w-auto object-contain rounded-lg"
-              />
-              <img
-                src="/animations/gif tết 2.gif"
-                alt="Tết 2026"
-                className="h-12 w-auto object-contain"
-              />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Note Công Việc</h1>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">Theo dõi công việc và điểm danh</p>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                {currentTime.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </div>
-              <div className="text-2xl font-bold font-mono text-slate-800 dark:text-white">
-                {currentTime.toLocaleTimeString('vi-VN')}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Xin chào, {user.email}</h1>
