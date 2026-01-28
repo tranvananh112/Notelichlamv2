@@ -46,10 +46,10 @@ export default function Header({ currentTime }: HeaderProps) {
 
       {/* Time Display Bar */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-b border-slate-200">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-end gap-4">
-          <div className="text-right">
-            <div className="text-sm font-semibold text-slate-700">{formattedDate}</div>
-            <div className="text-lg font-bold font-mono text-purple-600">{formattedTime}</div>
+        <div className="container mx-auto px-4 py-2 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-base font-semibold text-slate-700">{formattedDate}</div>
+            <div className="text-xl font-bold font-mono text-red-600">{formattedTime}</div>
           </div>
         </div>
       </div>
