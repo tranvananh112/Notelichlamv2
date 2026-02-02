@@ -18,6 +18,9 @@ const ReportsModal = dynamic(() => import("./reports-modal"))
 const PayrollModal = dynamic(() => import("./payroll-modal"))
 const AdminDashboard = dynamic(() => import("./admin-dashboard"))
 const SpecialDayModal = dynamic(() => import("./special-day-modal"))
+const VietnameseCalendar = dynamic(() => import("./vietnamese-calendar"), {
+  loading: () => <div className="animate-pulse bg-slate-200 dark:bg-slate-700 rounded-lg h-96" />
+})
 
 import Header from "./header"
 import ReportsButton from "./reports-button"
@@ -85,6 +88,7 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
   const [specialDays, setSpecialDays] = useState<Record<string, string>>({}) // dateKey -> type
   const [showSpecialDayModal, setShowSpecialDayModal] = useState(false)
   const [specialDayModalDate, setSpecialDayModalDate] = useState<Date | null>(null)
+  const [showVietnameseCalendar, setShowVietnameseCalendar] = useState(false)
 
   // Load all future tasks for calendar display
   useEffect(() => {
@@ -667,19 +671,48 @@ export default function AppContainer({ user, isAdmin }: { user: User; isAdmin: b
           </div>
         </div>
 
+        {/* Calendar Toggle */}
+        <div className="flex justify-center mb-4">
+          <div className="bg-white/90 rounded-lg p-1 shadow-md">
+            <Button
+              variant={!showVietnameseCalendar ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowVietnameseCalendar(false)}
+              className="mr-1"
+            >
+              Lịch Công Việc
+            </Button>
+            <Button
+              variant={showVietnameseCalendar ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowVietnameseCalendar(true)}
+              className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white"
+            >
+              Lịch Việt Nam
+            </Button>
+          </div>
+        </div>
+
         {/* Calendar Full Screen */}
         <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-          <CalendarView
-            selectedDate={selectedDate}
-            onDateSelect={handleDateSelect}
-            getNoteCount={getNoteCount}
-            getHasAttendance={getHasAttendance}
-            getAttendanceInfo={getAttendanceInfo}
-            getFutureTasksCount={getFutureTasksCount}
-            getIncompleteNoteCount={getIncompleteNoteCount}
-            getSpecialDayType={getSpecialDayType}
-            onSpecialDayClick={handleSpecialDayClick}
-          />
+          {showVietnameseCalendar ? (
+            <VietnameseCalendar
+              selectedDate={selectedDate}
+              onDateSelect={handleDateSelect}
+            />
+          ) : (
+            <CalendarView
+              selectedDate={selectedDate}
+              onDateSelect={handleDateSelect}
+              getNoteCount={getNoteCount}
+              getHasAttendance={getHasAttendance}
+              getAttendanceInfo={getAttendanceInfo}
+              getFutureTasksCount={getFutureTasksCount}
+              getIncompleteNoteCount={getIncompleteNoteCount}
+              getSpecialDayType={getSpecialDayType}
+              onSpecialDayClick={handleSpecialDayClick}
+            />
+          )}
         </Card>
 
         {/* Reports Button */}

@@ -104,7 +104,7 @@ export default function CalendarView({
       }}
     >
       {/* Overlay để làm mờ background */}
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px]"></div>
+      <div className="absolute inset-0 bg-white/20 backdrop-blur-[0.5px]"></div>
 
       {/* Content */}
       <div className="relative z-10">
@@ -204,8 +204,8 @@ export default function CalendarView({
                       : today
                         ? "bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 text-slate-900 font-bold shadow-md hover:shadow-lg"
                         : weekend
-                          ? "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800"
-                          : "bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 hover:border-purple-300"
+                          ? "bg-indigo-50/60 dark:bg-indigo-900/20 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/30 border border-indigo-100/70 dark:border-indigo-800/70"
+                          : "bg-white/70 dark:bg-slate-700/70 hover:bg-white/80 dark:hover:bg-slate-600/80 border border-slate-200/70 dark:border-slate-600/70 hover:border-purple-300/70"
                   }
               `}
               >
